@@ -25,28 +25,23 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
   // Fetch the existing payment data
   useEffect(() => {
     const fetchPayment = async () => {
-      try {
-        const { data, error: fetchError } = await supabase
-          .from('Payments')
-          .select('*')
-          .eq('car_number', carNum)
-          .eq('date', getTodayDate())
-          .single();
+      const { data, error: fetchError } = await supabase
+        .from('Payments')
+        .select('*')
+        .eq('car_number', carNum)
+        .eq('date', getTodayDate())
+        .single();
 
-        if (fetchError) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: `Failed to fetch items: ${fetchError.message}`,
-            confirmButtonText: 'OK'
-          });
-        }
+      if (fetchError) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Failed to fetch items: ${fetchError.message}`,
+          confirmButtonText: 'OK'
+        });
+      }
 
-        setPayment(data);
-      }
-      finally {
-        setLoading(false);
-      }
+      setPayment(data);
     };
 
     fetchPayment();
