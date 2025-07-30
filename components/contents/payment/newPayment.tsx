@@ -68,6 +68,7 @@ export const NewPayment: FC<Props> = ({ items }) => {
             text: 'Car number for today already exists. Please use a different car number or look it up to update it.',
             confirmButtonText: 'OK'
           });
+          return;
         }
         Swal.fire({
           icon: 'error',

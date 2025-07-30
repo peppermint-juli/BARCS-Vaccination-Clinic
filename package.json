@@ -17,7 +17,6 @@
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
     "@mui/styled-engine": "^5.15.20",
-    "@mui/styled-engine-sc": "^5.15.20",
     "@mui/system": "^5.15.20",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.51.0",
