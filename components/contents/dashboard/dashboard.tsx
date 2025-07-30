@@ -43,15 +43,11 @@ export const Dashboard: FC<Props> = ({ serverVaxCounts }) => {
   const [vaxCounts, setVaxCounts] = useState<SimplifiedPayment[]>(serverVaxCounts);
 
   useEffect(() => {
-    console.log({ vaxCounts });
-
     const rabiesSum = sumBy(vaxCounts, 'rabies');
     const distemperSum = sumBy(vaxCounts, 'distemper');
 
     setTotalRabies(rabiesSum);
     setTotalDistemper(distemperSum);
-
-    console.log({ totalRabies: rabiesSum, totalDistemper: distemperSum });
 
   }, [vaxCounts]);
 

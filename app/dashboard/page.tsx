@@ -15,9 +15,6 @@ export default async function DashboardPage() {
     .select('rabies, distemper, car_number')
     .eq('date', getTodayDate());
 
-  console.log({ vaxCounts, error });
-  console.log('DashboardPage rendered');
-
 
   return (
     <Dashboard serverVaxCounts={vaxCounts || []} />
