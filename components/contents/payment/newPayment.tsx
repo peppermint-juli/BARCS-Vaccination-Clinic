@@ -7,6 +7,7 @@ import type { Item } from 'src/types/database';
 import { createTypedClient } from 'src/utils/supabase/typed-client';
 
 import { PaymentForm, PaymentFormData } from './paymentForm';
+import Swal from 'sweetalert2';
 
 export type TabOption = {
   name: string
@@ -54,30 +55,38 @@ export const NewPayment: FC<Props> = ({ items }) => {
           ]))
       };
 
-      console.log('Payment data:', paymentData);
       const { data, error } = await supabase
         .from('Payments')
         .insert([paymentData])
         .select();
 
       if (error) {
-        console.error('Error submitting payment:', error);
         if (error.code === '23505') {
-          alert('Car number for today already exists. Please use a different car number or look it up to update it.');
-          return;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Car number for today already exists. Please use a different car number or look it up to update it.',
+            confirmButtonText: 'OK'
+          });
         }
-        alert('Failed to submit payment. Please try again.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Failed to create payment: ${error.message}`,
+          confirmButtonText: 'OK'
+        });
         return;
       }
 
       if (data) {
-        alert('Payment submitted successfully!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Payment submitted successfully!',
+          confirmButtonText: 'OK'
+        });
         router.push('/'); // Redirect to home or another page
       }
-    }
-    catch (error) {
-      console.error('Unexpected error:', error);
-      alert('An unexpected error occurred. Please try again.');
     }
     finally {
       setIsSubmitting(false);

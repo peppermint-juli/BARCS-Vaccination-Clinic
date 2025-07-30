@@ -1,5 +1,7 @@
 import { EditPayment } from 'components/contents/payment/editPayment';
 import { cookies } from 'next/headers';
+import Swal from 'sweetalert2';
+
 import { createTypedServerClient } from 'src/utils/supabase/typed-client';
 
 export default async function Page({ params }: {
@@ -14,13 +16,12 @@ export default async function Page({ params }: {
   const { data, error } = await supabase.from('Items').select('*');
 
   if (error) {
-    console.error('Supabase error:', error);
-    return (
-      <div style={{ padding: '2rem' }}>
-        <h2>Error loading data</h2>
-        <p>Unable to load items data. Please try again later.</p>
-      </div>
-    );
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: `Failed to fetch items: ${error.message}`,
+      confirmButtonText: 'OK'
+    });
   }
 
   return <EditPayment items={data || []} carNum={Number.parseInt(id, 10)} />;

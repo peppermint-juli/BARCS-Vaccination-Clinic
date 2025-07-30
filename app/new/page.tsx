@@ -1,5 +1,7 @@
 import { NewPayment } from 'components/contents/payment/newPayment';
 import { cookies } from 'next/headers';
+import Swal from 'sweetalert2';
+
 import { createTypedServerClient } from 'src/utils/supabase/typed-client';
 
 // TODO: imp loading animation here
@@ -11,13 +13,12 @@ export default async function NewPaymentPage() {
   const { data, error } = await supabase.from('Items').select('*');
 
   if (error) {
-    console.error('Supabase error:', error);
-    return (
-      <div style={{ padding: '2rem' }}>
-        <h2>Error loading data</h2>
-        <p>Unable to load items data. Please try again later.</p>
-      </div>
-    );
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: `Failed to fetch items: ${error.message}`,
+      confirmButtonText: 'OK'
+    });
   }
 
   // data is now fully typed as Item[]

@@ -8,6 +8,7 @@ import type { Item, Payment } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
 import { PaymentForm, PaymentFormData } from './paymentForm';
+import Swal from 'sweetalert2';
 
 type Props = {
   items: Item[];
@@ -20,8 +21,6 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
   const supabase = createTypedClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payment, setPayment] = useState<Payment | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch the existing payment data
   useEffect(() => {
@@ -35,16 +34,15 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
           .single();
 
         if (fetchError) {
-          console.error('Error fetching payment:', fetchError);
-          setError('Failed to load payment data');
-          return;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: `Failed to fetch items: ${fetchError.message}`,
+            confirmButtonText: 'OK'
+          });
         }
 
         setPayment(data);
-      }
-      catch (error_) {
-        console.error('Unexpected error fetching payment:', error_);
-        setError('An unexpected error occurred while loading payment data');
       }
       finally {
         setLoading(false);
@@ -84,7 +82,6 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
           ]))
       };
 
-      console.log('Updating payment with data:', updateData);
       const { data, error: updateError } = await supabase
         .from('Payments')
         .update(updateData)
@@ -93,33 +90,29 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
         .select();
 
       if (updateError) {
-        console.error('Error updating payment:', updateError);
-        alert('Failed to update payment. Please try again.');
-
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Failed to update payment: ${updateError.message}`,
+          confirmButtonText: 'OK'
+        });
         return;
       }
 
       if (data) {
-        alert('Payment updated successfully!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Payment updated successfully!',
+          confirmButtonText: 'OK'
+        });
         router.push('/'); // Redirect to home or another page
       }
-    }
-    catch (updateError) {
-      console.error('Unexpected error:', updateError);
-      alert('An unexpected error occurred. Please try again.');
     }
     finally {
       setIsSubmitting(false);
     }
   };
-
-  if (loading) {
-    return <div>Loading payment data...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   if (!payment) {
     return <div>Payment not found</div>;
