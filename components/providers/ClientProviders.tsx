@@ -3,8 +3,11 @@
 import { ReactNode } from 'react';
 import { ThemeProvider as StyledThemeProvider, type DefaultTheme, createGlobalStyle } from 'styled-components';
 import { ThemeProvider } from '@mui/material/styles';
-import themeJSON from '../../theme';
+
 import { Layout } from 'components/common/layout';
+import { ContextWrapper } from 'components/wrappers/Context';
+
+import themeJSON from '../../theme';
 
 interface ClientProvidersProps {
   children: ReactNode;
@@ -74,9 +77,11 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     <ThemeProvider theme={themeJSON}>
       <StyledThemeProvider theme={theme}>
         <GlobalStyle />
-        <Layout>
-          {children}
-        </Layout>
+        <ContextWrapper>
+          <Layout>
+            {children}
+          </Layout>
+        </ContextWrapper>
       </StyledThemeProvider>
     </ThemeProvider>
   );

@@ -1,0 +1,101 @@
+'use client';
+import { FC } from 'react';
+import { useRouter } from 'next/navigation';
+
+import styled from 'styled-components';
+import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
+import { Button } from '@mui/material';
+import { Edit as EditIcon } from '@mui/icons-material';
+
+import { TabMenu } from 'components/common/tabs';
+
+export type TabOption = {
+  name: string
+  value: string
+}
+
+const Styled = styled.div`
+  .new-registration {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    margin: 2rem;
+  }
+
+  .grid {
+    margin: 1rem;
+
+    .MuiDataGrid-columnHeader {
+      font-style: normal;
+      font-size: 14px;
+      letter-spacing: 0.25px;
+      font-weight: 600;
+      text-transform: capitalize;
+      .MuiCheckbox-root {
+        height: 100%;        
+        padding: 15px;
+      }
+    }
+
+    .MuiDataGrid-cell {
+        padding: 12px 25px;
+        font-weight: 500;
+        border-top: 1px solid #E0E0E0;
+    }
+    
+  }
+`;
+
+type Registration = { car_number: string; num_dogs: number; num_cats: number; id: number; };
+
+type Props = {
+  registrations: Registration[];
+};
+
+export const RegistrationList: FC<Props> = ({ registrations }) => {
+
+  const router = useRouter();
+
+  const columns: GridColDef<Registration>[] = [
+    {
+      field: 'car_number',
+      headerName: 'Car Number',
+      width: 100
+    },
+    {
+      field: 'num_animals',
+      headerName: '# Animals',
+      width: 100,
+      valueGetter: (value, row) => row.num_dogs + row.num_cats
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      width: 100,
+      getActions: (params) => [
+        <GridActionsCellItem
+          icon={<EditIcon className="run-icon" />}
+          label="Edit"
+          onClick={() => { }}
+        />
+      ]
+    }
+  ];
+
+  return (
+    <Styled>
+      <TabMenu />
+      <h1>Registration</h1>
+      <div className="new-registration">
+        <Button variant="contained" color="primary" onClick={() => router.push('/registration/new')}>
+          New
+        </Button>
+      </div>
+      <DataGrid
+        rows={registrations}
+        columns={columns}
+        className="grid"
+      />
+    </Styled>
+  );
+};

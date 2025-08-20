@@ -11,12 +11,13 @@ export default async function DashboardPage() {
   const supabase = createTypedServerClient(cookieStore);
 
   const { data: vaxCounts, error } = await supabase
-    .from('Payments')
-    .select('rabies, distemper, car_number')
+    .from('Registration')
+    .select('distemper, car_number') // Removed 'rabies' column
     .eq('date', getTodayDate());
 
 
   return (
-    <Dashboard serverVaxCounts={vaxCounts || []} />
+    // <Dashboard serverVaxCounts={vaxCounts || []} />
+    <></>
   );
 };

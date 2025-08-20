@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -18,83 +18,80 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          item_field_name: string
           name: string
-          payment_column_name: string
           price: number
         }
         Insert: {
           created_at?: string
           id?: number
+          item_field_name?: string
           name?: string
-          payment_column_name?: string
           price: number
         }
         Update: {
           created_at?: string
           id?: number
+          item_field_name?: string
           name?: string
-          payment_column_name?: string
           price?: number
         }
         Relationships: []
       }
-      Payments: {
+      Registration: {
         Row: {
-          car_number: number
+          car_number: string
           cash: boolean
+          change_log: Json[]
+          comments: string
           created_at: string
           credit: boolean
           date: string
-          distemper: number
           id: number
-          microchip: number
-          pet_license_lifetime: number
-          pet_license_not_SN: number
-          pet_license_not_SN_over_65: number
-          pet_license_SN: number
-          pet_license_SN_over_65: number
-          rabies: number
+          items: Json[]
+          num_cats: number
+          num_dogs: number
+          payed: boolean
+          payment_volunteer_initials: string
+          registration_volunteer_initials: string
           total: number
-          volunteer_initials: string
-          waived: boolean
+          walk_up: boolean
         }
         Insert: {
-          car_number: number
+          car_number?: string
           cash?: boolean
+          change_log?: Json[]
+          comments?: string
           created_at?: string
           credit?: boolean
           date?: string
-          distemper?: number
           id?: number
-          microchip?: number
-          pet_license_lifetime?: number
-          pet_license_not_SN?: number
-          pet_license_not_SN_over_65?: number
-          pet_license_SN?: number
-          pet_license_SN_over_65?: number
-          rabies?: number
+          items?: Json[]
+          num_cats?: number
+          num_dogs?: number
+          payed?: boolean
+          payment_volunteer_initials?: string
+          registration_volunteer_initials?: string
           total?: number
-          volunteer_initials?: string
-          waived?: boolean
+          walk_up?: boolean
         }
         Update: {
-          car_number?: number
+          car_number?: string
           cash?: boolean
+          change_log?: Json[]
+          comments?: string
           created_at?: string
           credit?: boolean
           date?: string
-          distemper?: number
           id?: number
-          microchip?: number
-          pet_license_lifetime?: number
-          pet_license_not_SN?: number
-          pet_license_not_SN_over_65?: number
-          pet_license_SN?: number
-          pet_license_SN_over_65?: number
-          rabies?: number
+          items?: Json[]
+          num_cats?: number
+          num_dogs?: number
+          payed?: boolean
+          payment_volunteer_initials?: string
+          registration_volunteer_initials?: string
           total?: number
-          volunteer_initials?: string
-          waived?: boolean
+          walk_up?: boolean
         }
         Relationships: []
       }

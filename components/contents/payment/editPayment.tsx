@@ -7,12 +7,12 @@ import { createTypedClient } from 'src/utils/supabase/typed-client';
 import type { Item, Payment } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
-import { PaymentForm, PaymentFormData } from './paymentForm';
 import Swal from 'sweetalert2';
+import { RegistrationFormData, RegistrationForm } from '../registration/form/registrationForm';
 
 type Props = {
   items: Item[];
-  carNum: number;
+  carNum: string;
 }
 
 export const EditPayment: FC<Props> = ({ items, carNum }) => {
@@ -26,7 +26,7 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
   useEffect(() => {
     const fetchPayment = async () => {
       const { data, error: fetchError } = await supabase
-        .from('Payments')
+        .from('Registration')
         .select('*')
         .eq('car_number', carNum)
         .eq('date', getTodayDate())
@@ -47,17 +47,8 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
     fetchPayment();
   }, [carNum, supabase]);
 
-  const calculateTotalFromFormData = (formData: PaymentFormData): number => {
-    let total = 0;
-    for (const item of items) {
-      const count = formData.itemCounts[item.id.toString()] || 0;
-      total += item.price * count;
-    }
-    total += formData.donation || 0;
-    return total;
-  };
 
-  const handleSubmit = async (formData: PaymentFormData) => {
+  const handleSubmit = async (formData: RegistrationFormData) => {
     setIsSubmitting(true);
 
     try {
@@ -66,19 +57,13 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
         car_number: formData.carNum!,
         cash: formData.cash,
         credit: formData.credit,
-        total: calculateTotalFromFormData(formData),
-        volunteer_initials: formData.volunteerInitials,
-        waived: formData.waived,
-        // Add item counts dynamically
-        ...Object.fromEntries(
-          items.map(item => [
-            item.payment_column_name,
-            formData.itemCounts[item.id.toString()] || 0
-          ]))
+        total: 0,
+        volunteer_initials: formData.registrationVolunteerInitials,
+        payment_volunteer_initials: formData.paymentVolunteerInitials,
       };
 
       const { data, error: updateError } = await supabase
-        .from('Payments')
+        .from('Registration')
         .update(updateData)
         .eq('car_number', carNum)
         .eq('date', getTodayDate())
@@ -114,9 +99,9 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
   }
 
   return (
-    <PaymentForm
+    <RegistrationForm
       items={items}
-      existingPayment={payment}
+      existingRegistration={payment}
       onSubmit={handleSubmit}
       submitButtonText="Update Payment"
       isSubmitting={isSubmitting}

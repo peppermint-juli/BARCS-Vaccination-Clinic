@@ -1,16 +1,13 @@
-import { EditPayment } from 'components/contents/payment/editPayment';
 import { cookies } from 'next/headers';
 import Swal from 'sweetalert2';
 
+import { NewRegistration } from 'components/contents/registration/newRegistration';
 import { createTypedServerClient } from 'src/utils/supabase/typed-client';
 
-export default async function Page({ params }: {
-  params: Promise<{ id: string }>
-}) {
+// TODO: imp loading animation here
+export default async function NewRegistrationPage() {
   const cookieStore = await cookies();
   const supabase = createTypedServerClient(cookieStore);
-
-  const { id } = await params;
 
   // Fetch data from items table with full typing
   const { data, error } = await supabase.from('Items').select('*');
@@ -24,5 +21,8 @@ export default async function Page({ params }: {
     });
   }
 
-  return <EditPayment items={data || []} carNum={id} />;
-}
+  // data is now fully typed as Item[]
+  return (
+    <NewRegistration items={data || []} />
+  );
+};

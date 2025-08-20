@@ -2,8 +2,8 @@
 /* eslint-disable @next/next/no-page-custom-font */
 /* eslint-disable @next/next/google-font-display */
 import { ReactNode } from 'react';
-import '../styles/globals.css';
 import { ClientProviders } from 'components/providers/ClientProviders';
+import '../styles/globals.css';
 
 export const metadata = {
   title: 'BARCS Vaccination Clinic',

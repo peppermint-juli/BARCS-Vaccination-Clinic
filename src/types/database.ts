@@ -7,10 +7,15 @@ export type TablesUpdate<T extends keyof Database['public']['Tables']> = Databas
 
 // Specific types for your tables
 export type Item = Tables<'Items'>;
-export type Payment = Tables<'Payments'>;
+export type Registration = Tables<'Registration'>;
 
 // Insert and update types
 export type ItemInsert = TablesInsert<'Items'>;
 export type ItemUpdate = TablesUpdate<'Items'>;
-export type PaymentInsert = TablesInsert<'Payments'>;
-export type PaymentUpdate = TablesUpdate<'Payments'>;
+export type RegistrationInsert = TablesInsert<'Registration'>;
+export type RegistrationUpdate = TablesUpdate<'Registration'>;
+
+// Legacy aliases (in case code still references Payment types)
+export type Payment = Registration;
+export type PaymentInsert = RegistrationInsert;
+export type PaymentUpdate = RegistrationUpdate;
