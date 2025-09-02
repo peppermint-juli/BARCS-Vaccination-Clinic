@@ -37,7 +37,7 @@ export const TabMenu: FC = () => {
   };
 
   const tabOptions: TabOption[] = [
-    { name: 'Registration', value: 'registration' },
+    { name: 'Registration', value: 'registrations' },
     { name: 'Payments', value: 'payments' },
     { name: 'Dashboard', value: 'dashboard' }
   ];

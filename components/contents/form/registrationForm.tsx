@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import {
   Accordion,
@@ -15,7 +15,8 @@ import {
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 
 import type { Item, Registration } from 'src/types/database';
-import { ItemCount, ItemsGrid } from './itemsGrid';
+import { ItemCount, ItemsGrid } from './item/itemsGrid';
+import { ItemDialog } from './item/itemDialog';
 
 const Styled = styled.div`
   margin-top: 2rem;
@@ -49,6 +50,13 @@ const Styled = styled.div`
   
   .submit-button {
     margin: 2rem 1rem;
+  }
+
+  .new-item {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    margin: 1rem 0;
   }
 `;
 
@@ -89,8 +97,11 @@ export const RegistrationForm: FC<Props> = ({
   const [cash, setCash] = useState<boolean>(false);
   const [numDogs, setNumDogs] = useState<number>(0);
   const [numCats, setNumCats] = useState<number>(0);
+  const [comments, setComments] = useState<string>('');
   const [registrationVolunteerInitials, setRegistrationVolunteerInitials] = useState<string>('');
+
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState<boolean>(false);
 
   // Initialize form with existing registration data if editing
   useEffect(() => {
@@ -99,13 +110,26 @@ export const RegistrationForm: FC<Props> = ({
       setCredit(existingRegistration.credit || false);
       setCash(existingRegistration.cash || false);
       setRegistrationVolunteerInitials(existingRegistration.registration_volunteer_initials || '');
+      setNumDogs(existingRegistration.num_dogs || 0);
+      setNumCats(existingRegistration.num_cats || 0);
+      setComments(existingRegistration.comments || '');
 
       // Initialize item counts from existing registration
-      const existingItemCounts: ItemCount[] = [];
-
+      const existingItemCounts: ItemCount[] = (existingRegistration.items as any[]).map((item: any) => ({
+        name: item?.name ?? '',
+        quantity: item?.quantity ?? 0,
+        refunded: item?.refunded ?? false,
+        waived: item?.waived ?? false,
+        subtotal: (item?.quantity ?? 0) * (items.find(i => i.name === item?.name)?.price || 0)
+      }));
       setItemCounts(existingItemCounts);
+
     }
   }, []);
+
+  const total = useMemo<number>(() => {
+    return itemCounts.reduce((acc, item) => acc + item.subtotal, 0);
+  }, [itemCounts]);
 
   const handleOnSubmit = async () => {
     const formData: RegistrationFormData = {
@@ -113,12 +137,12 @@ export const RegistrationForm: FC<Props> = ({
       items: itemCounts,
       credit,
       cash,
-      total: 0,
+      total,
       registrationVolunteerInitials,
       paymentVolunteerInitials: '',
       numCats,
       numDogs,
-      comments: '',
+      comments,
       tags: []
     };
 
@@ -135,6 +159,11 @@ export const RegistrationForm: FC<Props> = ({
       expandedSectionsTemp = [...expandedSections, panel];
     }
     setExpandedSections([...expandedSectionsTemp]);
+  };
+
+  const handleItemDialogClose = (itemCount: ItemCount) => {
+    setItemCounts([...itemCounts, itemCount]);
+    setIsItemDialogOpen(false);
   };
 
   return (
@@ -178,7 +207,14 @@ export const RegistrationForm: FC<Props> = ({
               label="Number of Dogs"
               variant="outlined"
               value={numDogs}
-              onChange={(e) => setNumDogs(e.target.value === '' ? 0 : Number(e.target.value))}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (!isNaN(val) && val >= 0) {
+                  setNumDogs(val);
+                } else if (e.target.value === '') {
+                  setNumDogs(0);
+                }
+              }}
             />
             <h5>Number of Cats</h5>
             <TextField
@@ -186,11 +222,19 @@ export const RegistrationForm: FC<Props> = ({
               label="Number of Cats"
               variant="outlined"
               value={numCats}
-              onChange={(e) => setNumCats(e.target.value === '' ? 0 : Number(e.target.value))}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (!isNaN(val) && val >= 0) {
+                  setNumCats(val);
+                } else if (e.target.value === '') {
+                  setNumCats(0);
+                }
+              }}
             />
             <h5>Registration Volunteer Initials</h5>
             <TextField
               id="volunteer-initials"
+              disabled={isEditing}
               label="Volunteer Initials"
               variant="outlined"
               value={registrationVolunteerInitials}
@@ -212,14 +256,23 @@ export const RegistrationForm: FC<Props> = ({
               Payment
             </Typography>
             <Typography component="span" sx={{ color: 'text.secondary' }}>
-              Total: $0
+              Total: ${total.toFixed(2)}
             </Typography>
           </AccordionSummary>
         </Accordion>
 
         {expandedSections.includes('payment') &&
           <div>
-            <ItemsGrid items={[]} />
+            <h4>Items</h4>
+            <div className="new-item">
+              <Button variant="contained" color="primary" onClick={() => setIsItemDialogOpen(true)}>
+                Add item
+              </Button>
+            </div>
+            <ItemsGrid items={itemCounts} />
+            <div className="total">
+              <h4>Total: ${total.toFixed(2)}</h4>
+            </div>
             <div className="checkboxes">
               <FormControlLabel control={
                 <Checkbox
@@ -234,6 +287,11 @@ export const RegistrationForm: FC<Props> = ({
                 />
               } label="Cash" />
             </div>
+            <ItemDialog
+              items={items}
+              isOpen={isItemDialogOpen}
+              handleClose={handleItemDialogClose}
+            />
           </div>
         }
 
@@ -254,7 +312,14 @@ export const RegistrationForm: FC<Props> = ({
         </Accordion>
 
         {expandedSections.includes('comments') &&
-          <>Comments</>
+          <TextField
+            id="comments"
+            label="Comments"
+            placeholder="Type comments here..."
+            multiline
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+          />
         }
 
         <Accordion

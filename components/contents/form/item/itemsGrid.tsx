@@ -5,7 +5,9 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 export type ItemCount = {
   name: string;
   quantity: number;
+  subtotal: number;
   waived: boolean;
+  refunded: boolean;
 }
 
 type Props = {
@@ -40,20 +42,34 @@ const Styled = styled.div`
 
 export const ItemsGrid: FC<Props> = ({ items }) => {
   const itemColumns: GridColDef<ItemCount>[] = [
-    { field: 'name', headerName: 'Name', flex: 1 },
-    { field: 'quantity', headerName: 'Quantity', flex: 1 },
-    { field: 'subtotal', headerName: 'Subtotal', flex: 1 },
-    { field: 'tags', headerName: 'Tags', flex: 1 }
+    {
+      field: 'name',
+      headerName: 'Name',
+      flex: 1
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      width: 100
+    },
+    {
+      field: 'subtotal',
+      headerName: 'Subtotal',
+      width: 100,
+      valueFormatter: (value: Number) => `$${value.toFixed(2)}`
+    },
+    {
+      field: 'tags',
+      headerName: 'Tags',
+      flex: 1
+    }
   ];
 
   return <Styled>
-    <h4>Items</h4>
     <DataGrid
       columns={itemColumns}
       rows={items}
+      getRowId={(row) => `${row.name}-${row.quantity}`}
     />
-    <div className="total">
-      <h4>Total: $0</h4>
-    </div>
   </Styled>;
 }

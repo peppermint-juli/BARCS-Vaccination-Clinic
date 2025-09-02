@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { Item } from 'src/types/database';
 import { createTypedClient } from 'src/utils/supabase/typed-client';
 
-import { RegistrationFormData, RegistrationForm } from './form/registrationForm';
+import { RegistrationFormData, RegistrationForm } from '../form/registrationForm';
 import Swal from 'sweetalert2';
 
 export type TabOption = {
@@ -15,10 +15,10 @@ export type TabOption = {
 }
 
 type Props = {
-  items: Item[]
+  itemOptions: Item[]
 }
 
-export const NewRegistration: FC<Props> = ({ items }) => {
+export const NewRegistration: FC<Props> = ({ itemOptions }) => {
   const router = useRouter();
 
   const supabase = createTypedClient();
@@ -27,7 +27,6 @@ export const NewRegistration: FC<Props> = ({ items }) => {
   const handleSubmit = async (formData: RegistrationFormData) => {
     setIsSubmitting(true);
 
-    // Create registration data with dynamic item counts
     const registrationData = {
       car_number: formData.carNum!,
       date: new Date().toISOString().split('T')[0], // Today's date
@@ -36,6 +35,7 @@ export const NewRegistration: FC<Props> = ({ items }) => {
       total: 0,
       registration_volunteer_initials: formData.registrationVolunteerInitials,
       payment_volunteer_initials: formData.paymentVolunteerInitials,
+      items: formData.items,
       num_cats: formData.numCats,
       num_dogs: formData.numDogs,
       comments: formData.comments,
@@ -80,7 +80,7 @@ export const NewRegistration: FC<Props> = ({ items }) => {
 
   return (
     <RegistrationForm
-      items={items}
+      items={itemOptions}
       onSubmit={handleSubmit}
       submitButtonText="Submit"
       isSubmitting={isSubmitting}

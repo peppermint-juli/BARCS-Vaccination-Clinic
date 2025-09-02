@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import styled from 'styled-components';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import { Button } from '@mui/material';
+import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
@@ -46,17 +46,17 @@ const Styled = styled.div`
   }
 `;
 
-type Registration = { car_number: string; num_dogs: number; num_cats: number; id: number; };
+type Payment = { car_number: string; num_dogs: number; num_cats: number; id: number; payed: boolean; };
 
 type Props = {
-  registrations: Registration[];
+  payments: Payment[];
 };
 
-export const RegistrationList: FC<Props> = ({ registrations }) => {
+export const PaymentList: FC<Props> = ({ payments }) => {
 
   const router = useRouter();
 
-  const columns: GridColDef<Registration>[] = [
+  const columns: GridColDef<Payment>[] = [
     {
       field: 'car_number',
       headerName: 'Car Number',
@@ -67,6 +67,17 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
       headerName: '# Animals',
       width: 100,
       valueGetter: (value, row) => row.num_dogs + row.num_cats
+    },
+    {
+      field: 'payed',
+      headerName: 'Paid',
+      flex: 1,
+      renderCell: (params) => (
+        <Chip
+          label={params.value ? 'Paid' : 'Unpaid'}
+          color={params.value ? 'success' : 'error'}
+        />
+      )
     },
     {
       field: 'actions',
@@ -85,14 +96,14 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
   return (
     <Styled>
       <TabMenu />
-      <h1>Registration</h1>
+      <h1>Payments</h1>
       <div className="new-registration">
         <Button variant="contained" color="primary" onClick={() => router.push('/registration/new')}>
-          New
+          New Registration
         </Button>
       </div>
       <DataGrid
-        rows={registrations}
+        rows={payments}
         columns={columns}
         className="grid"
       />

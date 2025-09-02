@@ -1,52 +1,25 @@
 'use client';
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 import { createTypedClient } from 'src/utils/supabase/typed-client';
-import type { Item, Payment } from 'src/types/database';
+import type { Item, Registration } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
-import Swal from 'sweetalert2';
-import { RegistrationFormData, RegistrationForm } from '../registration/form/registrationForm';
+import { RegistrationFormData, RegistrationForm } from 'components/contents/form/registrationForm';
 
 type Props = {
   items: Item[];
-  carNum: string;
+  registration?: Registration;
 }
 
-export const EditPayment: FC<Props> = ({ items, carNum }) => {
+export const EditPayment: FC<Props> = ({ items, registration }) => {
   const router = useRouter();
 
   const supabase = createTypedClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [payment, setPayment] = useState<Payment | null>(null);
-
-  // Fetch the existing payment data
-  useEffect(() => {
-    const fetchPayment = async () => {
-      const { data, error: fetchError } = await supabase
-        .from('Registration')
-        .select('*')
-        .eq('car_number', carNum)
-        .eq('date', getTodayDate())
-        .single();
-
-      if (fetchError) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: `Failed to fetch items: ${fetchError.message}`,
-          confirmButtonText: 'OK'
-        });
-      }
-
-      setPayment(data);
-    };
-
-    fetchPayment();
-  }, [carNum, supabase]);
-
 
   const handleSubmit = async (formData: RegistrationFormData) => {
     setIsSubmitting(true);
@@ -57,15 +30,19 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
         car_number: formData.carNum!,
         cash: formData.cash,
         credit: formData.credit,
-        total: 0,
-        volunteer_initials: formData.registrationVolunteerInitials,
+        total: formData.total,
         payment_volunteer_initials: formData.paymentVolunteerInitials,
+        items: formData.items,
+        num_cats: formData.numCats,
+        num_dogs: formData.numDogs,
+        comments: formData.comments,
+        tags: formData.tags
       };
 
       const { data, error: updateError } = await supabase
         .from('Registration')
         .update(updateData)
-        .eq('car_number', carNum)
+        .eq('car_number', formData.carNum)
         .eq('date', getTodayDate())
         .select();
 
@@ -86,7 +63,7 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
           text: 'Payment updated successfully!',
           confirmButtonText: 'OK'
         });
-        router.push('/'); // Redirect to home or another page
+        router.push('/registrations'); // Redirect to home or another page
       }
     }
     finally {
@@ -94,16 +71,15 @@ export const EditPayment: FC<Props> = ({ items, carNum }) => {
     }
   };
 
-  if (!payment) {
-    return <div>Payment not found</div>;
+  if (!registration) {
+    return <div>Car not found</div>;
   }
 
   return (
     <RegistrationForm
       items={items}
-      existingRegistration={payment}
+      existingRegistration={registration}
       onSubmit={handleSubmit}
-      submitButtonText="Update Payment"
       isSubmitting={isSubmitting}
       isEditing
     />
