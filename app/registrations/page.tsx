@@ -14,7 +14,7 @@ export default async function RegistrationPage() {
   const todayDate = getTodayDate();
   // Fetch data from items table with full typing
   const { data, error } = await supabase.from('Registration')
-    .select('car_number, num_dogs, num_cats, id')
+    .select('car_number, num_dogs, num_cats, id, tags')
     .eq('date', todayDate)
     .order('car_number', { ascending: true });
 
@@ -26,7 +26,13 @@ export default async function RegistrationPage() {
       confirmButtonText: 'OK'
     });
   }
+  // Ensure tags is always a string array
+  const registrations = (data || []).map(item => ({
+    ...item,
+    tags: item.tags ?? []
+  }));
+
   return (
-    <RegistrationList registrations={data || []} />
+    <RegistrationList registrations={registrations} />
   );
 };

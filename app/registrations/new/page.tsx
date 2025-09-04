@@ -23,9 +23,6 @@ export default async function NewRegistrationPage() {
 
   // data is now fully typed as Item[]
   return (
-    <>
-      sdwkln
-      <NewRegistration itemOptions={data || []} />
-    </>
+    <NewRegistration itemOptions={data || []} />
   );
 };

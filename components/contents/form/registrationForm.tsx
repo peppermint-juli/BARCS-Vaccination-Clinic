@@ -5,16 +5,27 @@ import styled from 'styled-components';
 import {
   Accordion,
   AccordionSummary,
+  Alert,
+  Box,
   Button,
   Checkbox,
+  Chip,
   FormControl,
   FormControlLabel,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
   TextField,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import Swal from 'sweetalert2';
 
 import type { Item, Registration } from 'src/types/database';
+
 import { ItemCount, ItemsGrid } from './item/itemsGrid';
 import { ItemDialog } from './item/itemDialog';
 
@@ -33,30 +44,40 @@ const Styled = styled.div`
   }
 
   .accordion {
-    width: 110%;
     background-color: ${({ theme }) => theme.colors.secondary};
     color: #fff;
     font-weight: bold;
   }
 
-  .checkboxes{
+  .accordion-last {
+    margin-bottom: 1rem;
+  }
+
+  .checkboxes {
     display: flex;
     margin: 1rem 0;
   }
 
   .total {
     margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
   
   .submit-button {
     margin: 2rem 1rem;
   }
 
-  .new-item {
+  .new-item-header {
     display: flex;
-    flex-direction: column;
-    align-items: end;
+    justify-content: space-between;
+    align-items: center;
     margin: 1rem 0;
+  }
+
+  .comments {
+    margin-bottom: 1rem;
   }
 `;
 
@@ -72,7 +93,10 @@ export interface RegistrationFormData {
   numDogs: number;
   comments: string;
   tags: string[];
+  payed: boolean;
 }
+
+export const allowedTags = ['Walk-up', 'Sedated'] as const;
 
 type Props = {
   items: Item[];
@@ -91,6 +115,7 @@ export const RegistrationForm: FC<Props> = ({
   isSubmitting = false,
   isEditing = false
 }) => {
+
   const [carNum, setCarNum] = useState<string>('');
   const [itemCounts, setItemCounts] = useState<ItemCount[]>([]);
   const [credit, setCredit] = useState<boolean>(false);
@@ -99,20 +124,35 @@ export const RegistrationForm: FC<Props> = ({
   const [numCats, setNumCats] = useState<number>(0);
   const [comments, setComments] = useState<string>('');
   const [registrationVolunteerInitials, setRegistrationVolunteerInitials] = useState<string>('');
+  const [paymentVolunteerInitials, setPaymentVolunteerInitials] = useState<string>('');
+  const [payed, setPayed] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState<boolean>(false);
+  const [editingItem, setEditingItem] = useState<ItemCount | null>(null);
 
+
+  const getStyles = (tag: string) => {
+    const theme = useTheme();
+    return {
+      fontWeight: tags.includes(tag)
+        ? theme.typography.fontWeightMedium
+        : theme.typography.fontWeightRegular,
+    };
+  }
   // Initialize form with existing registration data if editing
   useEffect(() => {
     if (existingRegistration && items.length > 0) {
       setCarNum(existingRegistration.car_number);
-      setCredit(existingRegistration.credit || false);
-      setCash(existingRegistration.cash || false);
-      setRegistrationVolunteerInitials(existingRegistration.registration_volunteer_initials || '');
-      setNumDogs(existingRegistration.num_dogs || 0);
-      setNumCats(existingRegistration.num_cats || 0);
+      setCredit(existingRegistration.credit);
+      setCash(existingRegistration.cash);
+      setRegistrationVolunteerInitials(existingRegistration.registration_volunteer_initials);
+      setNumDogs(existingRegistration.num_dogs);
+      setNumCats(existingRegistration.num_cats);
       setComments(existingRegistration.comments || '');
+      setPayed(existingRegistration.payed);
+      setTags(existingRegistration.tags || []);
 
       // Initialize item counts from existing registration
       const existingItemCounts: ItemCount[] = (existingRegistration.items as any[]).map((item: any) => ({
@@ -139,11 +179,12 @@ export const RegistrationForm: FC<Props> = ({
       cash,
       total,
       registrationVolunteerInitials,
-      paymentVolunteerInitials: '',
+      paymentVolunteerInitials,
       numCats,
       numDogs,
       comments,
-      tags: []
+      tags,
+      payed
     };
 
     await onSubmit(formData);
@@ -162,13 +203,36 @@ export const RegistrationForm: FC<Props> = ({
   };
 
   const handleItemDialogClose = (itemCount: ItemCount) => {
-    setItemCounts([...itemCounts, itemCount]);
+    if (editingItem) {
+      // Update existing item
+      setItemCounts(itemCounts.map(item => item.name === editingItem.name ? itemCount : item));
+    } else {
+      // Add new item
+      setItemCounts([...itemCounts, itemCount]);
+    }
     setIsItemDialogOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleEditItem = (item: ItemCount) => {
+    setEditingItem(item);
+    setIsItemDialogOpen(true);
+  };
+
+  const handleTagsChange = (event: SelectChangeEvent<typeof tags>) => {
+    const {
+      target: { value },
+    } = event;
+    setTags(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
   };
 
   return (
     <Styled>
       <h2>{isEditing ? 'Edit Registration' : 'New Registration'}</h2>
+      <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
       <div className="form">
         <FormControl className="form-control" fullWidth>
           <h5>Car Number</h5>
@@ -240,6 +304,33 @@ export const RegistrationForm: FC<Props> = ({
               value={registrationVolunteerInitials}
               onChange={(e) => setRegistrationVolunteerInitials(e.target.value)}
             />
+            <h5>Tags</h5>
+            <Select
+              labelId="demo-multiple-chip-label"
+              id="demo-multiple-chip"
+              label="Tags"
+              multiple
+              value={tags}
+              onChange={handleTagsChange}
+              input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+            >
+              {allowedTags.map((tag) => (
+                <MenuItem
+                  key={tag}
+                  value={tag}
+                  style={getStyles(tag)}
+                >
+                  {tag}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
         }
         <Accordion
@@ -255,24 +346,19 @@ export const RegistrationForm: FC<Props> = ({
             <Typography component="h3" sx={{ width: '33%', flexShrink: 0 }}>
               Payment
             </Typography>
-            <Typography component="span" sx={{ color: 'text.secondary' }}>
-              Total: ${total.toFixed(2)}
-            </Typography>
+            <Chip color="warning" label={`Total: $${total.toFixed(2)}`} />
           </AccordionSummary>
         </Accordion>
 
         {expandedSections.includes('payment') &&
           <div>
-            <h4>Items</h4>
-            <div className="new-item">
-              <Button variant="contained" color="primary" onClick={() => setIsItemDialogOpen(true)}>
+            <div className="new-item-header">
+              <h4>Items</h4>
+              <Button variant="contained" color="primary" onClick={() => { setIsItemDialogOpen(true); setEditingItem(null); }}>
                 Add item
               </Button>
             </div>
-            <ItemsGrid items={itemCounts} />
-            <div className="total">
-              <h4>Total: ${total.toFixed(2)}</h4>
-            </div>
+            <ItemsGrid items={itemCounts} onEditItem={handleEditItem} />
             <div className="checkboxes">
               <FormControlLabel control={
                 <Checkbox
@@ -287,10 +373,45 @@ export const RegistrationForm: FC<Props> = ({
                 />
               } label="Cash" />
             </div>
+            <div className="total">
+              <h4>Total: ${total.toFixed(2)}</h4>
+              {!payed &&
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    Swal.fire({
+                      title: 'Mark as Payed',
+                      text: 'Are you sure you want to mark this registration as payed?',
+                      input: 'text',
+                      inputPlaceholder: 'Enter Payment Volunteer Initials',
+                      preConfirm: (initials) => {
+                        if (!initials) {
+                          Swal.showValidationMessage('Payment Volunteer Initials are required');
+                        } else {
+                          setPaymentVolunteerInitials(initials);
+                        }
+                      },
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes',
+                      cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        setPayed(true);
+                      }
+                    });
+                  }}
+                >
+                  Mark as Payed
+                </Button>
+              }
+            </div>
             <ItemDialog
               items={items}
               isOpen={isItemDialogOpen}
               handleClose={handleItemDialogClose}
+              editingItem={editingItem}
             />
           </div>
         }
@@ -315,6 +436,7 @@ export const RegistrationForm: FC<Props> = ({
           <TextField
             id="comments"
             label="Comments"
+            className="comments"
             placeholder="Type comments here..."
             multiline
             value={comments}
@@ -325,7 +447,7 @@ export const RegistrationForm: FC<Props> = ({
         <Accordion
           expanded={expandedSections.includes('change-logs')}
           onChange={() => handleAccordionChange('change-logs')}
-          className="accordion"
+          className="accordion accordion-last"
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -341,7 +463,7 @@ export const RegistrationForm: FC<Props> = ({
         {expandedSections.includes('change-logs') &&
           <>Change Logs</>
         }
-
+        <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
         <Button
           variant="contained"
           color="primary"

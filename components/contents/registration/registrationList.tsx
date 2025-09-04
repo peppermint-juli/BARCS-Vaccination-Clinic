@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import styled from 'styled-components';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import { Button } from '@mui/material';
+import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
@@ -46,7 +46,7 @@ const Styled = styled.div`
   }
 `;
 
-type Registration = { car_number: string; num_dogs: number; num_cats: number; id: number; };
+type Registration = { car_number: string; num_dogs: number; num_cats: number; id: number; tags: string[] };
 
 type Props = {
   registrations: Registration[];
@@ -60,18 +60,24 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
     {
       field: 'car_number',
       headerName: 'Car Number',
-      width: 100
+      flex: 1
     },
     {
       field: 'num_animals',
       headerName: '# Animals',
-      width: 100,
+      flex: 0.8,
       valueGetter: (value, row) => row.num_dogs + row.num_cats
+    },
+    {
+      field: 'tags',
+      headerName: 'Tags',
+      flex: 1.5,
+      renderCell: (params) => params.row.tags.map((tag: string) => <Chip key={tag} label={tag} style={{ marginRight: '0.5rem' }} />)
     },
     {
       field: 'actions',
       type: 'actions',
-      width: 100,
+      flex: 0.7,
       getActions: (params) => [
         <GridActionsCellItem
           icon={<EditIcon className="run-icon" />}
@@ -87,7 +93,7 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
       <TabMenu />
       <h1>Registration</h1>
       <div className="new-registration">
-        <Button variant="contained" color="primary" onClick={() => router.push('/registration/new')}>
+        <Button variant="contained" color="primary" onClick={() => router.push('/registrations/new')}>
           New
         </Button>
       </div>

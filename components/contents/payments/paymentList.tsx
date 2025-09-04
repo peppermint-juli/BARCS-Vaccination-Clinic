@@ -60,18 +60,18 @@ export const PaymentList: FC<Props> = ({ payments }) => {
     {
       field: 'car_number',
       headerName: 'Car Number',
-      width: 100
+      flex: 1
     },
     {
       field: 'num_animals',
       headerName: '# Animals',
-      width: 100,
+      flex: 0.8,
       valueGetter: (value, row) => row.num_dogs + row.num_cats
     },
     {
       field: 'payed',
       headerName: 'Paid',
-      flex: 1,
+      flex: 1.5,
       renderCell: (params) => (
         <Chip
           label={params.value ? 'Paid' : 'Unpaid'}
@@ -82,7 +82,7 @@ export const PaymentList: FC<Props> = ({ payments }) => {
     {
       field: 'actions',
       type: 'actions',
-      width: 100,
+      flex: 0.7,
       getActions: (params) => [
         <GridActionsCellItem
           icon={<EditIcon className="run-icon" />}
@@ -98,7 +98,7 @@ export const PaymentList: FC<Props> = ({ payments }) => {
       <TabMenu />
       <h1>Payments</h1>
       <div className="new-registration">
-        <Button variant="contained" color="primary" onClick={() => router.push('/registration/new')}>
+        <Button variant="contained" color="primary" onClick={() => router.push('/registrations/new')}>
           New Registration
         </Button>
       </div>

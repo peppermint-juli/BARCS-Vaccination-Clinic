@@ -54,8 +54,8 @@ export type Database = {
           payed: boolean
           payment_volunteer_initials: string
           registration_volunteer_initials: string
+          tags: Database["public"]["Enums"]["Tag"][] | null
           total: number
-          walk_up: boolean
         }
         Insert: {
           car_number?: string
@@ -72,8 +72,8 @@ export type Database = {
           payed?: boolean
           payment_volunteer_initials?: string
           registration_volunteer_initials?: string
+          tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
-          walk_up?: boolean
         }
         Update: {
           car_number?: string
@@ -90,8 +90,8 @@ export type Database = {
           payed?: boolean
           payment_volunteer_initials?: string
           registration_volunteer_initials?: string
+          tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
-          walk_up?: boolean
         }
         Relationships: []
       }
@@ -103,7 +103,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      Tag: "Walk-up" | "Sedated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -230,6 +230,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      Tag: ["Walk-up", "Sedated"],
+    },
   },
 } as const

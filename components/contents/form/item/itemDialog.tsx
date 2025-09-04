@@ -22,9 +22,10 @@ type Props = {
   items: Item[];
   isOpen: boolean;
   handleClose: (itemCount: ItemCount) => void;
+  editingItem?: ItemCount | null;
 }
 
-export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose }) => {
+export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, editingItem }) => {
   const [name, setName] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [waived, setWaived] = useState<boolean>(false);
@@ -32,14 +33,21 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setName('');
-      setQuantity(1);
-      setWaived(false);
-      setRefunded(false);
+      if (editingItem) {
+        setName(editingItem.name);
+        setQuantity(editingItem.quantity);
+        setWaived(editingItem.waived);
+        setRefunded(editingItem.refunded);
+      } else {
+        setName('');
+        setQuantity(1);
+        setWaived(false);
+        setRefunded(false);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, editingItem]);
 
-  const addItem = () => {
+  const saveItem = () => {
     if (!name) return;
     const newItem: ItemCount = {
       name: name || '',
@@ -60,6 +68,8 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose }) => {
           onChange={(e) => setName(e.target.value)}
           displayEmpty
           inputProps={{ 'aria-label': 'Without label' }}
+          disabled={!!editingItem}
+          style={{ maxWidth: '300px' }}
         >
           <MenuItem value="">
             <em>None</em>
@@ -103,8 +113,8 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose }) => {
       </FormControl>
     </DialogContent>
     <DialogActions>
-      <Button onClick={addItem} color="primary">
-        Add
+      <Button onClick={saveItem} color="primary">
+        {editingItem ? 'Save' : 'Add'}
       </Button>
     </DialogActions>
   </StyledDialog>;

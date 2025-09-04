@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { Item } from 'src/types/database';
 import { createTypedClient } from 'src/utils/supabase/typed-client';
 
-import { RegistrationFormData, RegistrationForm } from '../form/registrationForm';
+import { RegistrationFormData, RegistrationForm, allowedTags } from '../form/registrationForm';
 import Swal from 'sweetalert2';
 
 export type TabOption = {
@@ -39,7 +39,8 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
       num_cats: formData.numCats,
       num_dogs: formData.numDogs,
       comments: formData.comments,
-      tags: formData.tags
+      tags: (formData.tags as string[]).filter((tag): tag is 'Walk-up' | 'Sedated' => allowedTags.includes(tag as any)),
+      payed: formData.payed
     };
 
     const { data, error } = await supabase
@@ -73,7 +74,7 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
         text: 'Registration submitted successfully!',
         confirmButtonText: 'OK'
       });
-      router.push('/registration'); // Redirect to home or another page
+      router.push('/registrations'); // Redirect to home or another page
     }
 
   };

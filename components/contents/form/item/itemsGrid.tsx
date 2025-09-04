@@ -1,6 +1,8 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
+import { Edit as EditIcon } from '@mui/icons-material';
+import { Chip } from '@mui/material';
 
 export type ItemCount = {
   name: string;
@@ -12,6 +14,7 @@ export type ItemCount = {
 
 type Props = {
   items: ItemCount[];
+  onEditItem?: (item: ItemCount) => void;
 }
 
 const Styled = styled.div`
@@ -40,28 +43,44 @@ const Styled = styled.div`
   }
 `;
 
-export const ItemsGrid: FC<Props> = ({ items }) => {
+export const ItemsGrid: FC<Props> = ({ items, onEditItem }) => {
   const itemColumns: GridColDef<ItemCount>[] = [
     {
       field: 'name',
       headerName: 'Name',
-      flex: 1
+      flex: 1.2
     },
     {
       field: 'quantity',
       headerName: 'Quantity',
-      width: 100
+      flex: 0.8
     },
     {
       field: 'subtotal',
       headerName: 'Subtotal',
-      width: 100,
+      flex: 1,
       valueFormatter: (value: Number) => `$${value.toFixed(2)}`
     },
     {
       field: 'tags',
       headerName: 'Tags',
-      flex: 1
+      flex: 1,
+      renderCell: (params) => <>
+        {params.row.waived && <Chip color="warning" label="Waived" />}
+        {params.row.refunded && <Chip color="warning" label="Refunded" />}
+      </>
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      flex: 0.8,
+      getActions: (params) => [
+        <GridActionsCellItem
+          icon={<EditIcon />}
+          label="Edit"
+          onClick={() => onEditItem?.(params.row)}
+        />
+      ]
     }
   ];
 

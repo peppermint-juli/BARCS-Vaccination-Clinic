@@ -8,7 +8,7 @@ import { createTypedClient } from 'src/utils/supabase/typed-client';
 import type { Item, Registration } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
-import { RegistrationFormData, RegistrationForm } from 'components/contents/form/registrationForm';
+import { RegistrationFormData, RegistrationForm, allowedTags } from 'components/contents/form/registrationForm';
 
 type Props = {
   items: Item[];
@@ -26,17 +26,21 @@ export const EditPayment: FC<Props> = ({ items, registration }) => {
 
     try {
       // Create update data with dynamic item counts
+      type AllowedTag = typeof allowedTags[number];
+
       const updateData = {
         car_number: formData.carNum!,
         cash: formData.cash,
         credit: formData.credit,
         total: formData.total,
+        registration_volunteer_initials: formData.registrationVolunteerInitials,
         payment_volunteer_initials: formData.paymentVolunteerInitials,
         items: formData.items,
         num_cats: formData.numCats,
         num_dogs: formData.numDogs,
         comments: formData.comments,
-        tags: formData.tags
+        tags: (formData.tags as string[]).filter((tag): tag is AllowedTag => allowedTags.includes(tag as AllowedTag)),
+        payed: formData.payed
       };
 
       const { data, error: updateError } = await supabase
