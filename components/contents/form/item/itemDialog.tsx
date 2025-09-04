@@ -69,7 +69,6 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, editingItem 
           displayEmpty
           inputProps={{ 'aria-label': 'Without label' }}
           disabled={!!editingItem}
-          style={{ maxWidth: '300px' }}
         >
           <MenuItem value="">
             <em>None</em>

@@ -12,6 +12,16 @@ module.exports = {
   ],
   compiler: {
     styledComponents: true,
+  },
+  async redirects() {
+    return [
+      // Basic redirect
+      {
+        source: '/',
+        destination: '/registrations',
+        permanent: true
+      }
+    ]
   }
 };
 
