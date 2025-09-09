@@ -22,6 +22,14 @@ const Styled = styled.div`
     align-items: center;
     gap: 1rem;
   }
+
+  .header {
+    margin: 3% 5% 2% 8%;
+  }
+
+  .content {
+    margin: 3% 2% 2% 5%;
+  }
 `;
 
 export const mediaQuery = 500;
@@ -30,11 +38,13 @@ export const Layout: FC<Props> = ({ children }) => {
   return (
     <Styled>
       <main>
-        <h1>BARCS</h1>
-        <h2>Vaccination Clinic</h2>
-        <div className="calendar">
-          <CalendarTodayIcon />
-          <p>{new Date(Date.now()).toLocaleDateString()}</p>
+        <div className="header">
+          <h1>BARCS</h1>
+          <h2>Vaccination Clinic</h2>
+          <div className="calendar">
+            <CalendarTodayIcon />
+            <p>{new Date(Date.now()).toLocaleDateString()}</p>
+          </div>
         </div>
         {children}
       </main>

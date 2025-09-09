@@ -230,7 +230,7 @@ export const RegistrationForm: FC<Props> = ({
   };
 
   return (
-    <Styled>
+    <Styled className="content">
       <h2>{isEditing ? 'Edit Registration' : 'New Registration'}</h2>
       <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
       <div className="form">

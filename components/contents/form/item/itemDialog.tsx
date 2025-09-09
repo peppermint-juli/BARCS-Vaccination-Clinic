@@ -1,13 +1,24 @@
 'use client';
 import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, DialogContent, DialogActions, Button, TextField, Select, MenuItem, FormControl, Checkbox, FormControlLabel } from '@mui/material';
+import {
+  Dialog,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  Checkbox,
+  FormControlLabel
+} from '@mui/material';
 
 import { Item } from 'src/types/database';
 import { ItemCount } from './itemsGrid';
 
-const StyledDialog = styled(Dialog)`
-  min-width: 500px; 
+const Styled = styled.div`
+  padding: 1rem;
   
   .loading-container {
     display: flex;
@@ -59,62 +70,65 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, editingItem 
     handleClose(newItem);
   };
 
-  return <StyledDialog open={isOpen}>
-    <DialogContent className="dialog-content">
-      <FormControl className="form-control" fullWidth>
-        <h5>Item Name</h5>
-        <Select
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          displayEmpty
-          inputProps={{ 'aria-label': 'Without label' }}
-          disabled={!!editingItem}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {items.map((item) => (
-            <MenuItem key={item.id} value={item.name}>
-              {item.name} (${item.price.toFixed(2)})
+  return <Dialog open={isOpen}>
+    <Styled>
+
+      <DialogContent className="dialog-content">
+        <FormControl className="form-control" fullWidth>
+          <h5>Item Name</h5>
+          <Select
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Without label' }}
+            disabled={!!editingItem}
+          >
+            <MenuItem value="">
+              <em>None</em>
             </MenuItem>
-          ))}
-        </Select>
-        <h5>Quantity</h5>
-        <TextField
-          id="quantity"
-          label="Quantity"
-          variant="outlined"
-          value={quantity}
-          onChange={(e) => {
-            const val = Number(e.target.value);
-            if (!isNaN(val) && val >= 0) {
-              setQuantity(val);
-            } else if (e.target.value === '') {
-              setQuantity(0);
-            }
-          }}
-          required
-        />
-        <div className="checkboxes">
-          <FormControlLabel control={
-            <Checkbox
-              checked={waived}
-              onChange={(e) => setWaived(e.target.checked)}
-            />
-          } label="Waived" />
-          <FormControlLabel control={
-            <Checkbox
-              checked={refunded}
-              onChange={(e) => setRefunded(e.target.checked)}
-            />
-          } label="Refunded" />
-        </div>
-      </FormControl>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={saveItem} color="primary">
-        {editingItem ? 'Save' : 'Add'}
-      </Button>
-    </DialogActions>
-  </StyledDialog>;
+            {items.map((item) => (
+              <MenuItem key={item.id} value={item.name}>
+                {item.name} {item.name === 'Donation' ? '' : `($${item.price.toFixed(2)})`}
+              </MenuItem>
+            ))}
+          </Select>
+          <h5>Quantity</h5>
+          <TextField
+            id="quantity"
+            label="Quantity"
+            variant="outlined"
+            value={quantity}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              if (!isNaN(val) && val >= 0) {
+                setQuantity(val);
+              } else if (e.target.value === '') {
+                setQuantity(0);
+              }
+            }}
+            required
+          />
+          <div className="checkboxes">
+            <FormControlLabel control={
+              <Checkbox
+                checked={waived}
+                onChange={(e) => setWaived(e.target.checked)}
+              />
+            } label="Waived" />
+            <FormControlLabel control={
+              <Checkbox
+                checked={refunded}
+                onChange={(e) => setRefunded(e.target.checked)}
+              />
+            } label="Refunded" />
+          </div>
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={saveItem} color="primary">
+          {editingItem ? 'Save' : 'Add'}
+        </Button>
+      </DialogActions>
+    </Styled>
+  </Dialog>;
 };

@@ -32,10 +32,6 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     box-sizing: border-box;
   }
 
-  main {
-    margin: 3% 5% 5% 10%;
-  }
-
   h1, h2, h3, h4, h5 {
     font-family: "Poppins", sans-serif;
     font-style: normal;

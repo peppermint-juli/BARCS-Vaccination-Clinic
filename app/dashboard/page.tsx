@@ -12,12 +12,11 @@ export default async function DashboardPage() {
 
   const { data: vaxCounts, error } = await supabase
     .from('Registration')
-    .select('distemper, car_number') // Removed 'rabies' column
+    .select('num_dogs, num_cats, items, car_number')
     .eq('date', getTodayDate());
 
 
   return (
-    // <Dashboard serverVaxCounts={vaxCounts || []} />
-    <></>
+    <Dashboard serverVaxCounts={vaxCounts || []} />
   );
 };

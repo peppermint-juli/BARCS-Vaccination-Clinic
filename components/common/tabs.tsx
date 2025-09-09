@@ -8,6 +8,7 @@ import { TabOption } from './layout';
 
 const StyledTabs = styled(Tabs)`
   background-color:  ${({ theme }) => theme.colors.secondary};
+  width: 100%;
 `;
 
 const StyledTab = styled(Tab)`
@@ -46,7 +47,7 @@ export const TabMenu: FC = () => {
     <StyledTabs
       value={tabOption}
       onChange={handleTabChange}
-      centered
+      variant="fullWidth"
       color="secondary"
       sx={{ '& .MuiTabs-flexContainer': { flexWrap: 'wrap' } }}>
       {tabOptions.map(tab =>

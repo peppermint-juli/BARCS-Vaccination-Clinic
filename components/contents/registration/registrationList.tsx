@@ -41,6 +41,8 @@ const Styled = styled.div`
         padding: 12px 25px;
         font-weight: 500;
         border-top: 1px solid #E0E0E0;
+        display: flex;
+        align-items: center;
     }
     
   }
@@ -59,14 +61,8 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
   const columns: GridColDef<Registration>[] = [
     {
       field: 'car_number',
-      headerName: 'Car Number',
+      headerName: 'Car #',
       flex: 1
-    },
-    {
-      field: 'num_animals',
-      headerName: '# Animals',
-      flex: 0.8,
-      valueGetter: (value, row) => row.num_dogs + row.num_cats
     },
     {
       field: 'tags',
@@ -91,17 +87,20 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
   return (
     <Styled>
       <TabMenu />
-      <h1>Registration</h1>
-      <div className="new-registration">
-        <Button variant="contained" color="primary" onClick={() => router.push('/registrations/new')}>
-          New
-        </Button>
+      <div className="content">
+        <h1>Registration</h1>
+        <div className="new-registration">
+          <Button variant="contained" color="primary" onClick={() => router.push('/registrations/new')}>
+            New
+          </Button>
+        </div>
+        <DataGrid
+          rowHeight={60}
+          rows={registrations}
+          columns={columns}
+          className="grid"
+        />
       </div>
-      <DataGrid
-        rows={registrations}
-        columns={columns}
-        className="grid"
-      />
     </Styled>
   );
 };
