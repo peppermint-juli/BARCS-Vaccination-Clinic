@@ -1,5 +1,5 @@
 'use client';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
+import { sortBy } from 'lodash';
 
 export type TabOption = {
   name: string
@@ -62,6 +63,7 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
     {
       field: 'car_number',
       headerName: 'Car #',
+      sortable: false,
       flex: 1
     },
     {
@@ -83,6 +85,16 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
       ]
     }
   ];
+  const sortAlphaNum = (a: Registration, b: Registration) => a.car_number.localeCompare(b.car_number, 'en', { numeric: true });
+  const registrationsSorted = useMemo(() => {
+
+    const sorted = [...registrations].sort(sortAlphaNum);
+    console.log(sorted);
+
+    return sorted;
+  }, [registrations]);
+
+
 
   return (
     <Styled>
@@ -96,7 +108,7 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
         </div>
         <DataGrid
           rowHeight={60}
-          rows={registrations}
+          rows={registrationsSorted}
           columns={columns}
           className="grid"
         />

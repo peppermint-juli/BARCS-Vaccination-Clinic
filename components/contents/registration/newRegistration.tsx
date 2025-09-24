@@ -8,6 +8,7 @@ import { createTypedClient } from 'src/utils/supabase/typed-client';
 
 import { RegistrationFormData, RegistrationForm, allowedTags } from '../form/registrationForm';
 import Swal from 'sweetalert2';
+import { getTodayDateOnly } from 'src/utils/date';
 
 export type TabOption = {
   name: string
@@ -27,14 +28,18 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
   const handleSubmit = async (formData: RegistrationFormData) => {
     setIsSubmitting(true);
 
+    const changeLogEntry = {
+      action: 'Created new registration',
+      timestamp: new Date().toISOString(),
+      volunteer_initials: formData.editingVolunteerInitials
+    }
     const registrationData = {
       car_number: formData.carNum!,
-      date: new Date().toISOString().split('T')[0], // Today's date
+      date: getTodayDateOnly(),
       cash: formData.cash,
       credit: formData.credit,
-      total: 0,
-      registration_volunteer_initials: formData.registrationVolunteerInitials,
-      payment_volunteer_initials: formData.paymentVolunteerInitials,
+      total: formData.total,
+      change_log: [changeLogEntry],
       items: formData.items,
       num_cats: formData.numCats,
       num_dogs: formData.numDogs,
@@ -56,6 +61,7 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
           text: 'Car number for today already exists. Please use a different car number or look it up to update it.',
           confirmButtonText: 'OK'
         });
+        setIsSubmitting(false);
         return;
       }
       Swal.fire({
@@ -64,6 +70,7 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
         text: `Failed to create registration: ${error.message}`,
         confirmButtonText: 'OK'
       });
+      setIsSubmitting(false);
       return;
     }
 

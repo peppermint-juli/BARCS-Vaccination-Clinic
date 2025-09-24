@@ -33,10 +33,11 @@ type Props = {
   items: Item[];
   isOpen: boolean;
   handleClose: (itemCount: ItemCount) => void;
+  handleCancel: () => void;
   editingItem?: ItemCount | null;
 }
 
-export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, editingItem }) => {
+export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel, editingItem }) => {
   const [name, setName] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [waived, setWaived] = useState<boolean>(false);
@@ -125,6 +126,9 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, editingItem 
         </FormControl>
       </DialogContent>
       <DialogActions>
+        <Button onClick={handleCancel} color="primary">
+          Cancel
+        </Button>
         <Button onClick={saveItem} color="primary">
           {editingItem ? 'Save' : 'Add'}
         </Button>

@@ -52,8 +52,6 @@ export type Database = {
           num_cats: number
           num_dogs: number
           payed: boolean
-          payment_volunteer_initials: string
-          registration_volunteer_initials: string
           tags: Database["public"]["Enums"]["Tag"][] | null
           total: number
         }
@@ -70,8 +68,6 @@ export type Database = {
           num_cats?: number
           num_dogs?: number
           payed?: boolean
-          payment_volunteer_initials?: string
-          registration_volunteer_initials?: string
           tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
         }
@@ -88,8 +84,6 @@ export type Database = {
           num_cats?: number
           num_dogs?: number
           payed?: boolean
-          payment_volunteer_initials?: string
-          registration_volunteer_initials?: string
           tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
         }

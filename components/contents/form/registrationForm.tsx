@@ -28,6 +28,8 @@ import type { Item, Registration } from 'src/types/database';
 
 import { ItemCount, ItemsGrid } from './item/itemsGrid';
 import { ItemDialog } from './item/itemDialog';
+import { ChangeLogEntry, ChangeLogs } from './changeLogs';
+import { isEqual } from 'lodash';
 
 const Styled = styled.div`
   margin-top: 2rem;
@@ -87,13 +89,12 @@ export interface RegistrationFormData {
   credit: boolean;
   cash: boolean;
   total: number;
-  registrationVolunteerInitials: string;
-  paymentVolunteerInitials: string;
   numCats: number;
   numDogs: number;
   comments: string;
   tags: string[];
   payed: boolean;
+  editingVolunteerInitials: string;
 }
 
 export const allowedTags = ['Walk-up', 'Sedated'] as const;
@@ -123,10 +124,10 @@ export const RegistrationForm: FC<Props> = ({
   const [numDogs, setNumDogs] = useState<number>(0);
   const [numCats, setNumCats] = useState<number>(0);
   const [comments, setComments] = useState<string>('');
-  const [registrationVolunteerInitials, setRegistrationVolunteerInitials] = useState<string>('');
-  const [paymentVolunteerInitials, setPaymentVolunteerInitials] = useState<string>('');
+  const [editingVolunteerInitials, setEditingVolunteerInitials] = useState<string>('');
   const [payed, setPayed] = useState<boolean>(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [changeLogs, setChangeLogs] = useState<ChangeLogEntry[]>([]);
 
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState<boolean>(false);
@@ -143,11 +144,15 @@ export const RegistrationForm: FC<Props> = ({
   }
   // Initialize form with existing registration data if editing
   useEffect(() => {
+
+    if (!isEditing) {
+      setExpandedSections(['registration']);
+    }
+
     if (existingRegistration && items.length > 0) {
       setCarNum(existingRegistration.car_number);
       setCredit(existingRegistration.credit);
       setCash(existingRegistration.cash);
-      setRegistrationVolunteerInitials(existingRegistration.registration_volunteer_initials);
       setNumDogs(existingRegistration.num_dogs);
       setNumCats(existingRegistration.num_cats);
       setComments(existingRegistration.comments || '');
@@ -164,6 +169,14 @@ export const RegistrationForm: FC<Props> = ({
       }));
       setItemCounts(existingItemCounts);
 
+      // Initialize change logs from existing registration
+      const existingChangeLogs: ChangeLogEntry[] = (existingRegistration.change_log as any[]).map((log: any) => ({
+        action: log?.action ?? '',
+        timestamp: log?.timestamp ?? '',
+        volunteer_initials: log?.volunteer_initials ?? ''
+      }));
+      setChangeLogs(existingChangeLogs);
+
     }
   }, []);
 
@@ -172,22 +185,42 @@ export const RegistrationForm: FC<Props> = ({
   }, [itemCounts]);
 
   const handleOnSubmit = async () => {
-    const formData: RegistrationFormData = {
-      carNum,
-      items: itemCounts,
-      credit,
-      cash,
-      total,
-      registrationVolunteerInitials,
-      paymentVolunteerInitials,
-      numCats,
-      numDogs,
-      comments,
-      tags,
-      payed
-    };
+    Swal.fire({
+      title: 'Submit Registration',
+      text: 'Are you sure you want to submit? \n \nPlease enter your first name and last name initial to confirm.',
+      input: 'text',
+      inputPlaceholder: 'E.g., John D.',
+      preConfirm: (initials) => {
+        if (!initials) {
+          Swal.showValidationMessage('Volunteer Name is required');
+        } else {
+          setEditingVolunteerInitials(initials);
+        }
+      },
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const formData: RegistrationFormData = {
+          carNum,
+          items: itemCounts,
+          credit,
+          cash,
+          total,
+          numCats,
+          numDogs,
+          comments,
+          tags,
+          payed,
+          editingVolunteerInitials
+        };
 
-    await onSubmit(formData);
+        await onSubmit(formData);
+      }
+    });
+
   };
 
   const handleAccordionChange = (panel: string) => {
@@ -215,8 +248,7 @@ export const RegistrationForm: FC<Props> = ({
   };
 
   const handleEditItem = (item: ItemCount) => {
-    setEditingItem(item);
-    setIsItemDialogOpen(true);
+    setItemCounts(itemCounts.filter(i => isEqual(i, item) === false));
   };
 
   const handleTagsChange = (event: SelectChangeEvent<typeof tags>) => {
@@ -295,15 +327,6 @@ export const RegistrationForm: FC<Props> = ({
                 }
               }}
             />
-            <h5>Registration Volunteer Initials</h5>
-            <TextField
-              id="volunteer-initials"
-              disabled={isEditing}
-              label="Volunteer Initials"
-              variant="outlined"
-              value={registrationVolunteerInitials}
-              onChange={(e) => setRegistrationVolunteerInitials(e.target.value)}
-            />
             <h5>Tags</h5>
             <Select
               labelId="demo-multiple-chip-label"
@@ -358,7 +381,7 @@ export const RegistrationForm: FC<Props> = ({
                 Add item
               </Button>
             </div>
-            <ItemsGrid items={itemCounts} onEditItem={handleEditItem} />
+            <ItemsGrid items={itemCounts} deleteItem={handleEditItem} />
             <div className="checkboxes">
               <FormControlLabel control={
                 <Checkbox
@@ -380,27 +403,7 @@ export const RegistrationForm: FC<Props> = ({
                   variant="contained"
                   color="primary"
                   onClick={() => {
-                    Swal.fire({
-                      title: 'Mark as Payed',
-                      text: 'Are you sure you want to mark this registration as payed?',
-                      input: 'text',
-                      inputPlaceholder: 'Enter Payment Volunteer Initials',
-                      preConfirm: (initials) => {
-                        if (!initials) {
-                          Swal.showValidationMessage('Payment Volunteer Initials are required');
-                        } else {
-                          setPaymentVolunteerInitials(initials);
-                        }
-                      },
-                      icon: 'warning',
-                      showCancelButton: true,
-                      confirmButtonText: 'Yes',
-                      cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        setPayed(true);
-                      }
-                    });
+                    setPayed(true);
                   }}
                 >
                   Mark as Payed
@@ -410,6 +413,7 @@ export const RegistrationForm: FC<Props> = ({
             <ItemDialog
               items={items}
               isOpen={isItemDialogOpen}
+              handleCancel={() => { setIsItemDialogOpen(false); setEditingItem(null); }}
               handleClose={handleItemDialogClose}
               editingItem={editingItem}
             />
@@ -461,7 +465,7 @@ export const RegistrationForm: FC<Props> = ({
         </Accordion>
 
         {expandedSections.includes('change-logs') &&
-          <>Change Logs</>
+          <ChangeLogs logs={changeLogs} />
         }
         <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
         <Button

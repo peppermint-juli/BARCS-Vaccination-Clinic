@@ -9,6 +9,7 @@ import type { Item, Registration } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
 import { RegistrationFormData, RegistrationForm, allowedTags } from 'components/contents/form/registrationForm';
+import { isEqual, reduce } from 'lodash';
 
 type Props = {
   items: Item[];
@@ -28,20 +29,46 @@ export const EditPayment: FC<Props> = ({ items, registration }) => {
       // Create update data with dynamic item counts
       type AllowedTag = typeof allowedTags[number];
 
+
+
       const updateData = {
         car_number: formData.carNum!,
         cash: formData.cash,
         credit: formData.credit,
         total: formData.total,
-        registration_volunteer_initials: formData.registrationVolunteerInitials,
-        payment_volunteer_initials: formData.paymentVolunteerInitials,
         items: formData.items,
         num_cats: formData.numCats,
         num_dogs: formData.numDogs,
         comments: formData.comments,
         tags: (formData.tags as string[]).filter((tag): tag is AllowedTag => allowedTags.includes(tag as AllowedTag)),
-        payed: formData.payed
+        payed: formData.payed,
+        change_log: registration?.change_log || []
       };
+
+      const changes = Object.keys(updateData).reduce((result, key) => {
+        const regValue = (registration as any)[key];
+        const updateValue = (updateData as any)[key];
+        if (!isEqual(regValue, updateValue)) {
+          result[key] = { from: regValue, to: updateValue };
+        }
+        return result;
+      }, {} as Record<string, { from: any, to: any }>);
+
+
+      updateData['change_log'] = [
+        ...(registration?.change_log || []),
+        {
+          action: changes,
+          timestamp: new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          volunteer_initials: formData.editingVolunteerInitials
+        }
+      ];
 
       const { data, error: updateError } = await supabase
         .from('Registration')
@@ -57,6 +84,7 @@ export const EditPayment: FC<Props> = ({ items, registration }) => {
           text: `Failed to update payment: ${updateError.message}`,
           confirmButtonText: 'OK'
         });
+        setIsSubmitting(false);
         return;
       }
 

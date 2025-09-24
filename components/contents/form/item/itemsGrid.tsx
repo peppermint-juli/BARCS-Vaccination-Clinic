@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Chip } from '@mui/material';
 
 export type ItemCount = {
@@ -14,7 +14,7 @@ export type ItemCount = {
 
 type Props = {
   items: ItemCount[];
-  onEditItem?: (item: ItemCount) => void;
+  deleteItem?: (item: ItemCount) => void;
 }
 
 const Styled = styled.div`
@@ -43,7 +43,7 @@ const Styled = styled.div`
   }
 `;
 
-export const ItemsGrid: FC<Props> = ({ items, onEditItem }) => {
+export const ItemsGrid: FC<Props> = ({ items, deleteItem }) => {
   const itemColumns: GridColDef<ItemCount>[] = [
     {
       field: 'name',
@@ -76,9 +76,9 @@ export const ItemsGrid: FC<Props> = ({ items, onEditItem }) => {
       flex: 0.8,
       getActions: (params) => [
         <GridActionsCellItem
-          icon={<EditIcon />}
-          label="Edit"
-          onClick={() => onEditItem?.(params.row)}
+          icon={<DeleteIcon color="error" />}
+          label="Delete"
+          onClick={() => deleteItem?.(params.row)}
         />
       ]
     }
