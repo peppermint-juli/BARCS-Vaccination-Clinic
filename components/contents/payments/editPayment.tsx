@@ -9,7 +9,7 @@ import type { Item, Registration } from 'src/types/database';
 import { getTodayDate } from 'src/utils/date';
 
 import { RegistrationFormData, RegistrationForm, allowedTags } from 'components/contents/form/registrationForm';
-import { isEqual, reduce } from 'lodash';
+import { isEqual } from 'lodash';
 
 type Props = {
   items: Item[];

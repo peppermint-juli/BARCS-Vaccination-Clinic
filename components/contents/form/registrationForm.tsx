@@ -18,18 +18,17 @@ import {
   Select,
   SelectChangeEvent,
   TextField,
-  Typography,
-  useTheme
+  Typography
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { isEqual } from 'lodash';
 import Swal from 'sweetalert2';
 
 import type { Item, Registration } from 'src/types/database';
 
 import { ItemCount, ItemsGrid } from './item/itemsGrid';
-import { ItemDialog } from './item/itemDialog';
+import { getStyles, ItemDialog } from './item/itemDialog';
 import { ChangeLogEntry, ChangeLogs } from './changeLogs';
-import { isEqual } from 'lodash';
 
 const Styled = styled.div`
   margin-top: 2rem;
@@ -98,6 +97,7 @@ export interface RegistrationFormData {
 }
 
 export const allowedTags = ['Walk-up', 'Sedated'] as const;
+export const numOptions = Array.from({ length: 21 }, (_, i) => i); // Options from 0 to 20
 
 type Props = {
   items: Item[];
@@ -124,24 +124,15 @@ export const RegistrationForm: FC<Props> = ({
   const [numDogs, setNumDogs] = useState<number>(0);
   const [numCats, setNumCats] = useState<number>(0);
   const [comments, setComments] = useState<string>('');
-  const [editingVolunteerInitials, setEditingVolunteerInitials] = useState<string>('');
   const [payed, setPayed] = useState<boolean>(false);
   const [tags, setTags] = useState<string[]>([]);
   const [changeLogs, setChangeLogs] = useState<ChangeLogEntry[]>([]);
 
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState<boolean>(false);
-  const [editingItem, setEditingItem] = useState<ItemCount | null>(null);
 
 
-  const getStyles = (tag: string) => {
-    const theme = useTheme();
-    return {
-      fontWeight: tags.includes(tag)
-        ? theme.typography.fontWeightMedium
-        : theme.typography.fontWeightRegular,
-    };
-  }
+
   // Initialize form with existing registration data if editing
   useEffect(() => {
 
@@ -165,7 +156,8 @@ export const RegistrationForm: FC<Props> = ({
         quantity: item?.quantity ?? 0,
         refunded: item?.refunded ?? false,
         waived: item?.waived ?? false,
-        subtotal: (item?.quantity ?? 0) * (items.find(i => i.name === item?.name)?.price || 0)
+        subtotal: (item?.quantity ?? 0) * (items.find(i => i.name === item?.name)?.price || 0),
+        tags: item?.tags ?? []
       }));
       setItemCounts(existingItemCounts);
 
@@ -185,6 +177,7 @@ export const RegistrationForm: FC<Props> = ({
   }, [itemCounts]);
 
   const handleOnSubmit = async () => {
+    let submitVolunteerInitials = '';
     Swal.fire({
       title: 'Submit Registration',
       text: 'Are you sure you want to submit? \n \nPlease enter your first name and last name initial to confirm.',
@@ -194,7 +187,7 @@ export const RegistrationForm: FC<Props> = ({
         if (!initials) {
           Swal.showValidationMessage('Volunteer Name is required');
         } else {
-          setEditingVolunteerInitials(initials);
+          submitVolunteerInitials = initials;
         }
       },
       icon: 'warning',
@@ -214,7 +207,7 @@ export const RegistrationForm: FC<Props> = ({
           comments,
           tags,
           payed,
-          editingVolunteerInitials
+          editingVolunteerInitials: submitVolunteerInitials
         };
 
         await onSubmit(formData);
@@ -236,15 +229,8 @@ export const RegistrationForm: FC<Props> = ({
   };
 
   const handleItemDialogClose = (itemCount: ItemCount) => {
-    if (editingItem) {
-      // Update existing item
-      setItemCounts(itemCounts.map(item => item.name === editingItem.name ? itemCount : item));
-    } else {
-      // Add new item
-      setItemCounts([...itemCounts, itemCount]);
-    }
+    setItemCounts([...itemCounts, itemCount]);
     setIsItemDialogOpen(false);
-    setEditingItem(null);
   };
 
   const handleEditItem = (item: ItemCount) => {
@@ -298,39 +284,28 @@ export const RegistrationForm: FC<Props> = ({
         {expandedSections.includes('registration') &&
           <FormControl className="form-control" fullWidth>
             <h5>Number of Dogs</h5>
-            <TextField
-              id="num-dogs"
-              label="Number of Dogs"
-              variant="outlined"
+            <Select
+              id="num-dogs-select"
               value={numDogs}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (!isNaN(val) && val >= 0) {
-                  setNumDogs(val);
-                } else if (e.target.value === '') {
-                  setNumDogs(0);
-                }
-              }}
-            />
+              onChange={(e) => setNumDogs(e.target.value as number)}
+            >
+              {numOptions.map((num) => (
+                <MenuItem key={num} value={num}>{num}</MenuItem>
+              ))}
+            </Select>
             <h5>Number of Cats</h5>
-            <TextField
-              id="num-cats"
-              label="Number of Cats"
-              variant="outlined"
+            <Select
+              id="num-cats-select"
               value={numCats}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (!isNaN(val) && val >= 0) {
-                  setNumCats(val);
-                } else if (e.target.value === '') {
-                  setNumCats(0);
-                }
-              }}
-            />
+              onChange={(e) => setNumCats(e.target.value as number)}
+            >
+              {numOptions.map((num) => (
+                <MenuItem key={num} value={num}>{num}</MenuItem>
+              ))}
+            </Select>
             <h5>Tags</h5>
             <Select
-              labelId="demo-multiple-chip-label"
-              id="demo-multiple-chip"
+              id="tags-chip"
               label="Tags"
               multiple
               value={tags}
@@ -348,7 +323,7 @@ export const RegistrationForm: FC<Props> = ({
                 <MenuItem
                   key={tag}
                   value={tag}
-                  style={getStyles(tag)}
+                  style={getStyles(tag, tags)}
                 >
                   {tag}
                 </MenuItem>
@@ -377,7 +352,7 @@ export const RegistrationForm: FC<Props> = ({
           <div>
             <div className="new-item-header">
               <h4>Items</h4>
-              <Button variant="contained" color="primary" onClick={() => { setIsItemDialogOpen(true); setEditingItem(null); }}>
+              <Button variant="contained" color="primary" onClick={() => setIsItemDialogOpen(true)}>
                 Add item
               </Button>
             </div>
@@ -413,9 +388,8 @@ export const RegistrationForm: FC<Props> = ({
             <ItemDialog
               items={items}
               isOpen={isItemDialogOpen}
-              handleCancel={() => { setIsItemDialogOpen(false); setEditingItem(null); }}
+              handleCancel={() => setIsItemDialogOpen(false)}
               handleClose={handleItemDialogClose}
-              editingItem={editingItem}
             />
           </div>
         }

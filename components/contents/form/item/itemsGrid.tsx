@@ -10,6 +10,7 @@ export type ItemCount = {
   subtotal: number;
   waived: boolean;
   refunded: boolean;
+  tags: string[];
 }
 
 type Props = {
@@ -68,6 +69,7 @@ export const ItemsGrid: FC<Props> = ({ items, deleteItem }) => {
       renderCell: (params) => <>
         {params.row.waived && <Chip color="warning" label="Waived" />}
         {params.row.refunded && <Chip color="warning" label="Refunded" />}
+        {params.row.tags && params.row.tags.map((tag) => (<Chip key={tag} label={tag} color="default" />))}
       </>
     },
     {

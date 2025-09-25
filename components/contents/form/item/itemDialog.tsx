@@ -11,7 +11,12 @@ import {
   MenuItem,
   FormControl,
   Checkbox,
-  FormControlLabel
+  FormControlLabel,
+  SelectChangeEvent,
+  useTheme,
+  Box,
+  Chip,
+  OutlinedInput
 } from '@mui/material';
 
 import { Item } from 'src/types/database';
@@ -34,42 +39,65 @@ type Props = {
   isOpen: boolean;
   handleClose: (itemCount: ItemCount) => void;
   handleCancel: () => void;
-  editingItem?: ItemCount | null;
 }
 
-export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel, editingItem }) => {
+export const getStyles = (tag: string, tags: readonly string[]) => {
+  const theme = useTheme();
+  return {
+    fontWeight: tags.includes(tag)
+      ? theme.typography.fontWeightMedium
+      : theme.typography.fontWeightRegular,
+  };
+};
+
+const allowedTags = ['TY', 'Not needed'] as const;
+
+export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel }) => {
   const [name, setName] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [waived, setWaived] = useState<boolean>(false);
   const [refunded, setRefunded] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
+
+  const handleTagsChange = (event: SelectChangeEvent<typeof tags>) => {
+    const {
+      target: { value },
+    } = event;
+    setTags(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
 
   useEffect(() => {
     if (isOpen) {
-      if (editingItem) {
-        setName(editingItem.name);
-        setQuantity(editingItem.quantity);
-        setWaived(editingItem.waived);
-        setRefunded(editingItem.refunded);
-      } else {
-        setName('');
-        setQuantity(1);
-        setWaived(false);
-        setRefunded(false);
-      }
+      setName('');
+      setQuantity(1);
+      setWaived(false);
+      setRefunded(false);
+      setTags([]);
     }
-  }, [isOpen, editingItem]);
+  }, [isOpen]);
 
   const saveItem = () => {
     if (!name) return;
+    const subtotal = waived ? 0 : (items.find(item => item.name === name)?.price || 0) * quantity;
     const newItem: ItemCount = {
       name: name || '',
       quantity,
-      subtotal: quantity * (items.find(item => item.name === name)?.price || 0),
+      subtotal,
       waived,
-      refunded
+      refunded,
+      tags
     };
     handleClose(newItem);
   };
+
+  useEffect(() => {
+    if (refunded) {
+      setQuantity(-quantity);
+    }
+  }, [refunded]);
 
   return <Dialog open={isOpen}>
     <Styled>
@@ -82,7 +110,6 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel
             onChange={(e) => setName(e.target.value)}
             displayEmpty
             inputProps={{ 'aria-label': 'Without label' }}
-            disabled={!!editingItem}
           >
             <MenuItem value="">
               <em>None</em>
@@ -123,6 +150,32 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel
               />
             } label="Refunded" />
           </div>
+          <h5>Tags</h5>
+          <Select
+            id="tags-chip"
+            label="Tags"
+            multiple
+            value={tags}
+            onChange={handleTagsChange}
+            input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+          >
+            {allowedTags.map((tag) => (
+              <MenuItem
+                key={tag}
+                value={tag}
+                style={getStyles(tag, tags)}
+              >
+                {tag}
+              </MenuItem>
+            ))}
+          </Select>
         </FormControl>
       </DialogContent>
       <DialogActions>
@@ -130,7 +183,7 @@ export const ItemDialog: FC<Props> = ({ items, isOpen, handleClose, handleCancel
           Cancel
         </Button>
         <Button onClick={saveItem} color="primary">
-          {editingItem ? 'Save' : 'Add'}
+          Add
         </Button>
       </DialogActions>
     </Styled>

@@ -2,6 +2,8 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 
+import { getTodayDateOnly } from 'src/utils/date';
+
 
 interface Props {
   children: any
@@ -43,7 +45,7 @@ export const Layout: FC<Props> = ({ children }) => {
           <h2>Vaccination Clinic</h2>
           <div className="calendar">
             <CalendarTodayIcon />
-            <p>{new Date(Date.now()).toLocaleDateString()}</p>
+            <p>{getTodayDateOnly()}</p>
           </div>
         </div>
         {children}

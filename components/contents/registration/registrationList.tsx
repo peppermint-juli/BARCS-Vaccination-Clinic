@@ -8,7 +8,6 @@ import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
-import { sortBy } from 'lodash';
 
 export type TabOption = {
   name: string
