@@ -34,7 +34,7 @@ export type SimplifiedRegistration = {
   num_cats: number;
   items: Json[];
   car_number: string;
-  payed: boolean;
+  paid: boolean;
 }
 
 type Props = {
@@ -44,40 +44,40 @@ type Props = {
 export const Dashboard: FC<Props> = ({ serverVaxCounts }) => {
 
   const supabase = createTypedClient();
-  const [totalDogsPayed, setTotalDogsPayed] = useState<number>(0);
-  const [totalCatsPayed, setTotalCatsPayed] = useState<number>(0);
-  const [totalRabiesPayed, setTotalRabiesPayed] = useState<number>(0);
-  const [totalDistemperPayed, setTotalDistemperPayed] = useState<number>(0);
+  const [totalDogsPaid, setTotalDogsPaid] = useState<number>(0);
+  const [totalCatsPaid, setTotalCatsPaid] = useState<number>(0);
+  const [totalRabiesPaid, setTotalRabiesPaid] = useState<number>(0);
+  const [totalDistemperPaid, setTotalDistemperPaid] = useState<number>(0);
 
-  const [totalDogsUnpayed, setTotalDogsUnpayed] = useState<number>(0);
-  const [totalCatsUnpayed, setTotalCatsUnpayed] = useState<number>(0);
-  const [totalRabiesUnpayed, setTotalRabiesUnpayed] = useState<number>(0);
-  const [totalDistemperUnpayed, setTotalDistemperUnpayed] = useState<number>(0);
+  const [totalDogsUnpaid, setTotalDogsUnpaid] = useState<number>(0);
+  const [totalCatsUnpaid, setTotalCatsUnpaid] = useState<number>(0);
+  const [totalRabiesUnpaid, setTotalRabiesUnpaid] = useState<number>(0);
+  const [totalDistemperUnpaid, setTotalDistemperUnpaid] = useState<number>(0);
 
   const [vaxCounts, setVaxCounts] = useState<SimplifiedRegistration[]>(serverVaxCounts);
 
   useEffect(() => {
-    const [vaxCountsPayed, vaxCountsUnpayed] = partition(vaxCounts, reg => reg.payed);
+    const [vaxCountsPaid, vaxCountsUnpaid] = partition(vaxCounts, reg => reg.paid);
 
-    const itemsArraysPayed = vaxCountsPayed.map(reg => reg.items);
-    const allItemsPayed = itemsArraysPayed.flat();
-    const rabiesPayed = sumBy(allItemsPayed, (item: any) => item['name'] === 'Rabies' ? item['quantity'] : 0);
-    const distemperPayed = sumBy(allItemsPayed, (item: any) => item['name'] === 'Distemper' ? item['quantity'] : 0);
+    const itemsArraysPaid = vaxCountsPaid.map(reg => reg.items);
+    const allItemsPaid = itemsArraysPaid.flat();
+    const rabiesPaid = sumBy(allItemsPaid, (item: any) => item['name'] === 'Rabies' ? item['quantity'] : 0);
+    const distemperPaid = sumBy(allItemsPaid, (item: any) => item['name'] === 'Distemper' ? item['quantity'] : 0);
 
-    setTotalDogsPayed(sumBy(vaxCountsPayed, 'num_dogs'));
-    setTotalCatsPayed(sumBy(vaxCountsPayed, 'num_cats'));
-    setTotalRabiesPayed(rabiesPayed);
-    setTotalDistemperPayed(distemperPayed);
+    setTotalDogsPaid(sumBy(vaxCountsPaid, 'num_dogs'));
+    setTotalCatsPaid(sumBy(vaxCountsPaid, 'num_cats'));
+    setTotalRabiesPaid(rabiesPaid);
+    setTotalDistemperPaid(distemperPaid);
 
-    const itemsArraysUnpayed = vaxCountsUnpayed.map(reg => reg.items);
-    const allItemsUnpayed = itemsArraysUnpayed.flat();
-    const rabiesUnpayed = sumBy(allItemsUnpayed, (item: any) => item['name'] === 'Rabies' ? item['quantity'] : 0);
-    const distemperUnpayed = sumBy(allItemsUnpayed, (item: any) => item['name'] === 'Distemper' ? item['quantity'] : 0);
+    const itemsArraysUnpaid = vaxCountsUnpaid.map(reg => reg.items);
+    const allItemsUnpaid = itemsArraysUnpaid.flat();
+    const rabiesUnpaid = sumBy(allItemsUnpaid, (item: any) => item['name'] === 'Rabies' ? item['quantity'] : 0);
+    const distemperUnpaid = sumBy(allItemsUnpaid, (item: any) => item['name'] === 'Distemper' ? item['quantity'] : 0);
 
-    setTotalDogsUnpayed(sumBy(vaxCountsUnpayed, 'num_dogs'));
-    setTotalCatsUnpayed(sumBy(vaxCountsUnpayed, 'num_cats'));
-    setTotalRabiesUnpayed(rabiesUnpayed);
-    setTotalDistemperUnpayed(distemperUnpayed);
+    setTotalDogsUnpaid(sumBy(vaxCountsUnpaid, 'num_dogs'));
+    setTotalCatsUnpaid(sumBy(vaxCountsUnpaid, 'num_cats'));
+    setTotalRabiesUnpaid(rabiesUnpaid);
+    setTotalDistemperUnpaid(distemperUnpaid);
 
   }, [vaxCounts]);
 
@@ -129,40 +129,40 @@ export const Dashboard: FC<Props> = ({ serverVaxCounts }) => {
         <h2>Total Animal Counts</h2>
         <div className="field">
           <h3>Number of Dogs:</h3>
-          <p>{totalDogsUnpayed}</p>
+          <p>{totalDogsUnpaid}</p>
         </div>
         <div className="field">
           <h3>Number of Cats:</h3>
-          <p>{totalCatsUnpayed}</p>
+          <p>{totalCatsUnpaid}</p>
         </div>
         <h2>Total Vaccine Counts</h2>
         <div className="field">
           <h3>Total Rabies:</h3>
-          <p>{totalRabiesUnpayed}</p>
+          <p>{totalRabiesUnpaid}</p>
         </div>
         <div className="field">
           <h3>Total Distemper:</h3>
-          <p>{totalDistemperUnpayed}</p>
+          <p>{totalDistemperUnpaid}</p>
         </div>
         <br />
         <h1>Paid</h1>
         <h2>Total Animal Counts</h2>
         <div className="field">
           <h3>Number of Dogs:</h3>
-          <p>{totalDogsPayed}</p>
+          <p>{totalDogsPaid}</p>
         </div>
         <div className="field">
           <h3>Number of Cats:</h3>
-          <p>{totalCatsPayed}</p>
+          <p>{totalCatsPaid}</p>
         </div>
         <h2>Total Vaccine Counts</h2>
         <div className="field">
           <h3>Total Rabies:</h3>
-          <p>{totalRabiesPayed}</p>
+          <p>{totalRabiesPaid}</p>
         </div>
         <div className="field">
           <h3>Total Distemper:</h3>
-          <p>{totalDistemperPayed}</p>
+          <p>{totalDistemperPaid}</p>
         </div>
       </div>
 

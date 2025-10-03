@@ -51,7 +51,7 @@ export type Database = {
           items: Json[]
           num_cats: number
           num_dogs: number
-          payed: boolean
+          paid: boolean
           tags: Database["public"]["Enums"]["Tag"][] | null
           total: number
         }
@@ -67,7 +67,7 @@ export type Database = {
           items?: Json[]
           num_cats?: number
           num_dogs?: number
-          payed?: boolean
+          paid?: boolean
           tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
         }
@@ -83,7 +83,7 @@ export type Database = {
           items?: Json[]
           num_cats?: number
           num_dogs?: number
-          payed?: boolean
+          paid?: boolean
           tags?: Database["public"]["Enums"]["Tag"][] | null
           total?: number
         }

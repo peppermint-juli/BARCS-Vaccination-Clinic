@@ -41,7 +41,7 @@ export const EditPayment: FC<Props> = ({ items, registration }) => {
         num_dogs: formData.numDogs,
         comments: formData.comments,
         tags: (formData.tags as string[]).filter((tag): tag is AllowedTag => allowedTags.includes(tag as AllowedTag)),
-        payed: formData.payed,
+        paid: formData.paid,
         change_log: registration?.change_log || []
       };
 

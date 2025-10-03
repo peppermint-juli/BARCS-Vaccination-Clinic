@@ -1,5 +1,5 @@
 'use client';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
+import { sortAlphaNum } from 'src/utils/sort';
 
 export type TabOption = {
   name: string
@@ -48,7 +49,7 @@ const Styled = styled.div`
   }
 `;
 
-type Payment = { car_number: string; num_dogs: number; num_cats: number; id: number; payed: boolean; };
+type Payment = { car_number: string; num_dogs: number; num_cats: number; id: number; paid: boolean; };
 
 type Props = {
   payments: Payment[];
@@ -65,7 +66,7 @@ export const PaymentList: FC<Props> = ({ payments }) => {
       flex: 1
     },
     {
-      field: 'payed',
+      field: 'paid',
       headerName: 'Payment Status',
       flex: 1.5,
       renderCell: (params) => (
@@ -89,6 +90,14 @@ export const PaymentList: FC<Props> = ({ payments }) => {
     }
   ];
 
+  const paymentsSorted = useMemo(() => {
+
+    const sorted = [...payments].sort(sortAlphaNum);
+    console.log(sorted);
+
+    return sorted;
+  }, [payments]);
+
   return (
     <Styled>
       <TabMenu />
@@ -101,7 +110,7 @@ export const PaymentList: FC<Props> = ({ payments }) => {
         </div>
         <DataGrid
           rowHeight={60}
-          rows={payments}
+          rows={paymentsSorted}
           columns={columns}
           className="grid"
         />

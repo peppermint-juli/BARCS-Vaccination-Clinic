@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   const { data: vaxCounts, error } = await supabase
     .from('Registration')
-    .select('num_dogs, num_cats, items, car_number, payed')
+    .select('num_dogs, num_cats, items, car_number, paid')
     .eq('date', getTodayDate());
 
 

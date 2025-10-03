@@ -45,7 +45,7 @@ export const NewRegistration: FC<Props> = ({ itemOptions }) => {
       num_dogs: formData.numDogs,
       comments: formData.comments,
       tags: (formData.tags as string[]).filter((tag): tag is 'Walk-up' | 'Sedated' => allowedTags.includes(tag as any)),
-      payed: formData.payed
+      paid: formData.paid
     };
 
     const { data, error } = await supabase

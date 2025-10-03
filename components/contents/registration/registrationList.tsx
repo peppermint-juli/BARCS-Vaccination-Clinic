@@ -3,11 +3,12 @@ import { FC, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import styled from 'styled-components';
-import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { Button, Chip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
 import { TabMenu } from 'components/common/tabs';
+import { sortAlphaNum } from 'src/utils/sort';
 
 export type TabOption = {
   name: string
@@ -48,17 +49,17 @@ const Styled = styled.div`
   }
 `;
 
-type Registration = { car_number: string; num_dogs: number; num_cats: number; id: number; tags: string[] };
+type RegistrationSimple = { car_number: string; num_dogs: number; num_cats: number; id: number; tags: string[] };
 
 type Props = {
-  registrations: Registration[];
+  registrations: RegistrationSimple[];
 };
 
 export const RegistrationList: FC<Props> = ({ registrations }) => {
 
   const router = useRouter();
 
-  const columns: GridColDef<Registration>[] = [
+  const columns: GridColDef<RegistrationSimple>[] = [
     {
       field: 'car_number',
       headerName: 'Car #',
@@ -84,7 +85,7 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
       ]
     }
   ];
-  const sortAlphaNum = (a: Registration, b: Registration) => a.car_number.localeCompare(b.car_number, 'en', { numeric: true });
+
   const registrationsSorted = useMemo(() => {
 
     const sorted = [...registrations].sort(sortAlphaNum);
@@ -92,8 +93,6 @@ export const RegistrationList: FC<Props> = ({ registrations }) => {
 
     return sorted;
   }, [registrations]);
-
-
 
   return (
     <Styled>

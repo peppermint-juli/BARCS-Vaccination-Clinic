@@ -92,7 +92,7 @@ export interface RegistrationFormData {
   numDogs: number;
   comments: string;
   tags: string[];
-  payed: boolean;
+  paid: boolean;
   editingVolunteerInitials: string;
 }
 
@@ -124,7 +124,7 @@ export const RegistrationForm: FC<Props> = ({
   const [numDogs, setNumDogs] = useState<number>(0);
   const [numCats, setNumCats] = useState<number>(0);
   const [comments, setComments] = useState<string>('');
-  const [payed, setPayed] = useState<boolean>(false);
+  const [paid, setPaid] = useState<boolean>(false);
   const [tags, setTags] = useState<string[]>([]);
   const [changeLogs, setChangeLogs] = useState<ChangeLogEntry[]>([]);
 
@@ -147,7 +147,7 @@ export const RegistrationForm: FC<Props> = ({
       setNumDogs(existingRegistration.num_dogs);
       setNumCats(existingRegistration.num_cats);
       setComments(existingRegistration.comments || '');
-      setPayed(existingRegistration.payed);
+      setPaid(existingRegistration.paid);
       setTags(existingRegistration.tags || []);
 
       // Initialize item counts from existing registration
@@ -206,7 +206,7 @@ export const RegistrationForm: FC<Props> = ({
           numDogs,
           comments,
           tags,
-          payed,
+          paid,
           editingVolunteerInitials: submitVolunteerInitials
         };
 
@@ -250,7 +250,7 @@ export const RegistrationForm: FC<Props> = ({
   return (
     <Styled className="content">
       <h2>{isEditing ? 'Edit Registration' : 'New Registration'}</h2>
-      <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
+      <Alert severity={paid ? 'success' : 'error'}>{paid ? 'This registration is marked as paid.' : 'This registration is not marked as paid.'}</Alert>
       <div className="form">
         <FormControl className="form-control" fullWidth>
           <h5>Car Number</h5>
@@ -373,15 +373,15 @@ export const RegistrationForm: FC<Props> = ({
             </div>
             <div className="total">
               <h4>Total: ${total.toFixed(2)}</h4>
-              {!payed &&
+              {!paid &&
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={() => {
-                    setPayed(true);
+                    setPaid(true);
                   }}
                 >
-                  Mark as Payed
+                  Mark as Paid
                 </Button>
               }
             </div>
@@ -441,7 +441,7 @@ export const RegistrationForm: FC<Props> = ({
         {expandedSections.includes('change-logs') &&
           <ChangeLogs logs={changeLogs} />
         }
-        <Alert severity={payed ? 'success' : 'error'}>{payed ? 'This registration is marked as payed.' : 'This registration is not marked as payed.'}</Alert>
+        <Alert severity={paid ? 'success' : 'error'}>{paid ? 'This registration is marked as paid.' : 'This registration is not marked as paid.'}</Alert>
         <Button
           variant="contained"
           color="primary"

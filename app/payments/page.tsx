@@ -15,7 +15,7 @@ export default async function RegistrationPage() {
   const todayDate = getTodayDate();
   // Fetch data from items table with full typing
   const { data, error } = await supabase.from('Registration')
-    .select('car_number, num_dogs, num_cats, id, payed')
+    .select('car_number, num_dogs, num_cats, id, paid')
     .eq('date', todayDate)
     .order('car_number', { ascending: true });
 
